@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ramazanittiev.github.io/drobi-tma/",
   "scripts": {
     "deploy": "gh-pages -d dist",
     "dev": "vite",
