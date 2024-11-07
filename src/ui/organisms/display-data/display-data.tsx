@@ -2,10 +2,10 @@ import { isRGB } from "@telegram-apps/sdk-react";
 import { Cell, Checkbox, Section } from "@telegram-apps/telegram-ui";
 import type { FC, ReactNode } from "react";
 
-import { RGB } from "@/components/RGB/RGB.tsx";
-import { Link } from "@/components/Link/Link.tsx";
+import { Rgb } from "@/ui/atoms/rgb/rgb.tsx";
+import { Link } from "@/ui/atoms/link/link.tsx";
 
-import "./DisplayData.css";
+import "./display-data.css";
 
 export type DisplayDataRow = { title: string } & (
   | { type: "link"; value?: string }
@@ -30,7 +30,7 @@ export const DisplayData: FC<DisplayDataProps> = ({ header, rows }) => (
           valueNode = <Link to={item.value}>Open</Link>;
         } else if (typeof item.value === "string") {
           valueNode = isRGB(item.value) ? (
-            <RGB color={item.value} />
+            <Rgb color={item.value} />
           ) : (
             item.value
           );

@@ -1,7 +1,4 @@
-import { App } from "@/components/App.tsx";
-import { ErrorBoundary } from "@/components/ErrorBoundary.tsx";
-
-function ErrorBoundaryError({ error }: { error: unknown }) {
+export const ErrorBoundaryFallback = ({ error }: { error: unknown }) => {
   return (
     <div>
       <p>An unhandled error occurred:</p>
@@ -16,12 +13,4 @@ function ErrorBoundaryError({ error }: { error: unknown }) {
       </blockquote>
     </div>
   );
-}
-
-export function Root() {
-  return (
-    <ErrorBoundary fallback={ErrorBoundaryError}>
-      <App />
-    </ErrorBoundary>
-  );
-}
+};

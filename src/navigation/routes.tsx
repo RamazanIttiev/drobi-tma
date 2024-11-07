@@ -1,9 +1,6 @@
 import type { ComponentType, JSX } from "react";
 
-import { IndexPage } from "@/pages/IndexPage/IndexPage";
-import { InitDataPage } from "@/pages/InitDataPage.tsx";
-import { LaunchParamsPage } from "@/pages/LaunchParamsPage.tsx";
-import { ThemeParamsPage } from "@/pages/ThemeParamsPage.tsx";
+import { Home } from "@/ui/pages/home.tsx";
 
 interface Route {
   path: string;
@@ -12,13 +9,4 @@ interface Route {
   icon?: JSX.Element;
 }
 
-export const routes: Route[] = [
-  { path: "/", Component: IndexPage },
-  { path: "/init-data", Component: InitDataPage, title: "Init Data" },
-  { path: "/theme-params", Component: ThemeParamsPage, title: "Theme Params" },
-  {
-    path: "/launch-params",
-    Component: LaunchParamsPage,
-    title: "Launch Params",
-  },
-];
+export const routes: Route[] = [{ path: "/", Component: Home }];

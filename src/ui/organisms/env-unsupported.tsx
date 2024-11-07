@@ -1,12 +1,12 @@
-import { Placeholder, AppRoot } from "@telegram-apps/telegram-ui";
+import { AppRoot, Placeholder } from "@telegram-apps/telegram-ui";
 import {
-  retrieveLaunchParams,
   isColorDark,
   isRGB,
+  retrieveLaunchParams,
 } from "@telegram-apps/sdk-react";
 import { useMemo } from "react";
 
-export function EnvUnsupported() {
+export const EnvUnsupported = () => {
   const [platform, isDark] = useMemo(() => {
     let platform = "base";
     let isDark = false;
@@ -39,4 +39,4 @@ export function EnvUnsupported() {
       </Placeholder>
     </AppRoot>
   );
-}
+};

@@ -1,6 +1,6 @@
-import { useLaunchParams, miniApp, useSignal } from "@telegram-apps/sdk-react";
+import { miniApp, useLaunchParams, useSignal } from "@telegram-apps/sdk-react";
 import { AppRoot } from "@telegram-apps/telegram-ui";
-import { Navigate, Route, Routes, HashRouter } from "react-router-dom";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { routes } from "@/navigation/routes.tsx";
 
