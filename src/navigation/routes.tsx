@@ -1,6 +1,6 @@
 import type { ComponentType, JSX } from "react";
 
-import { Home } from "@/ui/pages/home.tsx";
+import { Home } from "@/ui/pages/home/home.tsx";
 
 interface Route {
   path: string;
@@ -9,4 +9,8 @@ interface Route {
   icon?: JSX.Element;
 }
 
-export const routes: Route[] = [{ path: "/", Component: Home }];
+export const routes: Route[] = [
+  { path: "/", Component: Home },
+  { path: "/Maths", Component: Home },
+  { path: "/Russian", Component: Home },
+];
