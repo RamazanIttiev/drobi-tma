@@ -12,8 +12,8 @@ export const Home: FC = () => {
   return (
     <Page back={false}>
       <div className="home">
-        {courses.map(({ title, image }) => (
-          <Link to={`/${title}`}>
+        {courses.map(({ id, title, image }) => (
+          <Link to={`/${id}`} state={id}>
             <Card title={title} image={image} className="home--card" />
           </Link>
         ))}

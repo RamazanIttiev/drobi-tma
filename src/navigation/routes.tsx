@@ -1,6 +1,7 @@
 import type { ComponentType, JSX } from "react";
 
 import { Home } from "@/ui/pages/home/home.tsx";
+import { Subject } from "@/ui/pages/subject/subject.tsx";
 
 interface Route {
   path: string;
@@ -11,6 +12,5 @@ interface Route {
 
 export const routes: Route[] = [
   { path: "/", Component: Home },
-  { path: "/Maths", Component: Home },
-  { path: "/Russian", Component: Home },
+  { path: "/:subject", Component: Subject },
 ];
