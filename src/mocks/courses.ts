@@ -1,6 +1,6 @@
 import maths from "../assets/maths.jpg";
 import russian from "../assets/russian.png";
-import { CoursesModel } from "@/models/courses.model.ts";
+import { CoursesModel } from "@/ui/pages/course/courses.model.ts";
 
 export const courses: CoursesModel[] = [
   {

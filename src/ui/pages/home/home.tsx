@@ -13,7 +13,7 @@ export const Home: FC = () => {
     <Page back={false}>
       <div className="home">
         {courses.map(({ id, title, image }) => (
-          <Link to={`/${id}`} state={id} key={id}>
+          <Link to={`subject/${id}`} state={id} key={id}>
             <Card title={title} image={image} className="home--card" />
           </Link>
         ))}
