@@ -1,7 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { courses } from "@/mocks/courses.ts";
 import { Page } from "@/ui/organisms/page/page.tsx";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   invoice,
   mountMainButton,
@@ -9,34 +9,49 @@ import {
   setMainButtonParams,
 } from "@telegram-apps/sdk-react";
 import { createInvoiceLink } from "@/services/invoice/invoice.ts";
+import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
 
 export const Course = () => {
   const { state } = useLocation();
+  const navigate = useNavigate();
+  const course = courses.find((course) => course.id === state);
 
-  const createInvoice = async () =>
-    await createInvoiceLink({
-      title: "Maths",
-      description: "string",
-      payload: "string",
+  const payload: InvoiceBody = useMemo(
+    () => ({
       currency: "RUB",
+      description: course?.description || "",
+      payload: "payload",
       provider_token: import.meta.env.VITE_PROVIDER_TOKEN_TEST,
       prices: [
         {
-          label: "string",
-          amount: "100000",
+          label: "Course",
+          amount: course?.price || "0",
         },
       ],
-    })
-      .then((url) => {
-        if (url) {
-          invoice?.open(url, "url").then((status) => {
-            return console.log(status);
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      title: course?.title || "",
+      photo_url: course?.image,
+      send_phone_number_to_provider: true,
+      need_phone_number: true,
+      need_name: true,
+    }),
+    [course],
+  );
+
+  const createInvoice = useCallback(
+    async () =>
+      await createInvoiceLink(payload)
+        .then((url) => {
+          if (url) {
+            invoice?.open(url, "url").then((status) => {
+              if (status === "paid") navigate("/");
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        }),
+    [navigate, payload],
+  );
 
   useEffect(() => {
     mountMainButton();
@@ -53,9 +68,7 @@ export const Course = () => {
       setMainButtonParams({
         isVisible: false,
       });
-  }, []);
-
-  const course = courses.find((course) => course.id === state);
+  }, [createInvoice]);
 
   return <Page>{course?.title}</Page>;
 };
