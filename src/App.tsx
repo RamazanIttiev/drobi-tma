@@ -7,14 +7,20 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { Home } from "@/ui/pages/home/home.tsx";
-import { Course } from "@/ui/pages/course/course.tsx";
+import { HomeComponent } from "@/ui/pages/home/home.tsx";
+import { CourseComponent } from "@/ui/pages/course/course.tsx";
+import { fetchCourses } from "@/services/courses/fetchCourses.ts";
+import { fetchCourse } from "@/services/courses/fetchCourse.ts";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route index element={<Home />} />
-      <Route path="subject/:id" element={<Course />} />
+      <Route index element={<HomeComponent />} loader={fetchCourses} />
+      <Route
+        path="subject/:id"
+        element={<CourseComponent />}
+        loader={({ params }) => fetchCourse(params.id)}
+      />
     </>,
   ),
 );

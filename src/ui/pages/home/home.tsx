@@ -1,20 +1,25 @@
-import type { FC } from "react";
-
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { Card } from "@/ui/molecules/card/card.tsx";
 import { Link } from "@/ui/atoms/link/link.tsx";
-
-import { courses } from "@/mocks/courses.ts";
+import { Course } from "@/ui/pages/course/course.model.ts";
+import { useLoaderData } from "react-router-dom";
 
 import "./home.css";
 
-export const Home: FC = () => {
+export const HomeComponent = () => {
+  const courses = useLoaderData() as Course[];
+
   return (
     <Page back={false}>
       <div className="home">
-        {courses.map(({ id, title, image }) => (
+        {courses.map(({ id, title, image, shortDescription }) => (
           <Link to={`subject/${id}`} state={id} key={id}>
-            <Card title={title} image={image} className="home--card" />
+            <Card
+              title={title}
+              image={image}
+              subtitle={shortDescription}
+              className="home--card"
+            />
           </Link>
         ))}
       </div>

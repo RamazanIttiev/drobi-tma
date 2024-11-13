@@ -1,5 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { courses } from "@/mocks/courses.ts";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { useCallback, useEffect, useMemo } from "react";
 import {
@@ -10,11 +9,11 @@ import {
 } from "@telegram-apps/sdk-react";
 import { createInvoiceLink } from "@/services/invoice/invoice.ts";
 import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
+import { Course } from "@/ui/pages/course/course.model.ts";
 
-export const Course = () => {
-  const { state } = useLocation();
+export const CourseComponent = () => {
+  const course = useLoaderData() as Course;
   const navigate = useNavigate();
-  const course = courses.find((course) => course.id === state);
 
   const payload: InvoiceBody = useMemo(
     () => ({
@@ -25,7 +24,7 @@ export const Course = () => {
       prices: [
         {
           label: "Course",
-          amount: course?.price || "0",
+          amount: "0",
         },
       ],
       title: course?.title || "",
