@@ -1,0 +1,18 @@
+.course {
+  &__info {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  &__image {
+    margin: 0 auto 1rem;
+  }
+
+  &__title {
+    margin-bottom: 1rem;
+  }
+
+  &__caption {
+    color: var(--tgui--hint_color);
+  }
+}

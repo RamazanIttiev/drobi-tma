@@ -1,4 +1,6 @@
 .page {
+  height: 100%;
+
   &--horizontalPadding {
     padding-left: 1rem;
     padding-right: 1rem;

@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import react from "@vitejs/plugin-react-swc";
 import mkcert from "vite-plugin-mkcert";
+import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,6 +17,16 @@ export default defineConfig({
     // Create a custom SSL certificate valid for the local machine.
     // https://www.npmjs.com/package/vite-plugin-mkcert
     mkcert(),
+    svgr({
+      // svgr options: https://react-svgr.com/docs/options/
+      svgrOptions: {
+        exportType: "default",
+        ref: true,
+        svgo: false,
+        titleProp: true,
+      },
+      include: "**/*.svg",
+    }),
   ],
   publicDir: "./public",
   server: {
