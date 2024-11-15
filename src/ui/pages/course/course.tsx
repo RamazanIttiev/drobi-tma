@@ -137,7 +137,7 @@ export const CourseComponent = () => {
   );
 
   return (
-    <Page verticalPaddingDisabled horizontalPaddingDisabled>
+    <Page verticalPaddingDisabled horizontalPaddingDisabled fixed>
       <div className={"course__info"}>
         <Image size={96} src={course.image} className={"course__image"} />
         <LargeTitle className={"course__title"}>{course.title}</LargeTitle>

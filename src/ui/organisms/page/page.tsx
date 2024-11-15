@@ -10,6 +10,7 @@ interface Props extends FixedLayoutProps {
    * True if it is allowed to go back from this page.
    */
   back?: boolean;
+  fixed?: boolean;
   verticalPaddingDisabled?: boolean;
   horizontalPaddingDisabled?: boolean;
 }
@@ -19,6 +20,7 @@ export function Page(props: PropsWithChildren<Props>) {
     children,
     className,
     back = true,
+    fixed = false,
     verticalPaddingDisabled = false,
     horizontalPaddingDisabled = false,
   } = props;
@@ -41,9 +43,11 @@ export function Page(props: PropsWithChildren<Props>) {
     !horizontalPaddingDisabled && "page--horizontalPadding",
   );
 
-  return (
+  return fixed ? (
     <FixedLayout vertical="top" className={classnames}>
       {children}
     </FixedLayout>
+  ) : (
+    <div className={classnames}>{children}</div>
   );
 }
