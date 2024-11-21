@@ -25,7 +25,7 @@ export interface InvoiceBody {
   prices: [
     {
       label: string;
-      amount: string;
+      amount: number;
     },
   ];
   /**
@@ -59,11 +59,11 @@ export interface InvoiceBody {
   /*
    * Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars.
    */
-  need_name?: boolean;
+  need_name?: string;
   /**
    * Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars.
    */
-  need_phone_number?: boolean;
+  need_phone_number?: string;
   /**
    * Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars.
    */
@@ -75,7 +75,7 @@ export interface InvoiceBody {
   /**
    * Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars.
    */
-  send_phone_number_to_provider?: boolean;
+  send_phone_number_to_provider?: string;
   /**
    * Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars.
    */

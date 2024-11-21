@@ -2,13 +2,16 @@ import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
 
 export const createInvoiceLink = async (payload: InvoiceBody) => {
   try {
-    const response = await fetch("http://localhost:3000/createInvoiceLink", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/createInvoiceLink`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

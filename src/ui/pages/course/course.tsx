@@ -1,133 +1,70 @@
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { Page } from "@/ui/organisms/page/page.tsx";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   invoice,
+  mainButton,
   mountMainButton,
   onMainButtonClick,
   setMainButtonParams,
 } from "@telegram-apps/sdk-react";
-import { createInvoiceLink } from "@/services/invoice/invoice.ts";
-import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
 import {
   calculatePrice,
   Course,
+  CourseConfig,
   CourseDuration,
   CourseLevel,
   CourseQuantity,
   CourseType,
-  durationLocalization,
   durations,
-  levelLocalization,
   levels,
   quantity,
-  typeLocalization,
   types,
 } from "@/ui/pages/course/course.model.ts";
 import { Image } from "@telegram-apps/telegram-ui/dist/components/Blocks/Image/Image";
-import {
-  Button,
-  Caption,
-  LargeTitle,
-  List,
-  Section,
-} from "@telegram-apps/telegram-ui";
+import { Caption, LargeTitle, List, Section } from "@telegram-apps/telegram-ui";
 
 import { Paper } from "@/ui/atoms/paper/paper.tsx";
 import { Select } from "@/ui/atoms/select/select.tsx";
 
 import "./course.css";
+import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
+import { createInvoiceLink } from "@/services/invoice/invoice.ts";
+
+import { useInvoicePayload } from "@/ui/pages/course/hooks/use-payload.hook.ts";
 
 export const CourseComponent = () => {
   const course = useLoaderData() as Course;
   const navigate = useNavigate();
-  const [selectedLevel, setSelectedLevel] = useState<CourseLevel>("5-8");
-  const [selectedQuantity, setSelectedQuantity] = useState<CourseQuantity>("1");
-  const [selectedType, setSelectedType] = useState<CourseType>("individual");
-  const [selectedDuration, setSelectedDuration] =
-    useState<CourseDuration>("60");
+
+  const [paymentStatus, setPaymentStatus] = useState<string>();
+  const [config, setConfig] = useState<CourseConfig>({
+    selectedLevel: "5-8 класс",
+    selectedQuantity: "1",
+    selectedType: "Индивидуально",
+    selectedDuration: "60 минут",
+  });
+
+  const { selectedLevel, selectedQuantity, selectedType, selectedDuration } =
+    config;
 
   useEffect(() => {
-    if (selectedType === "group" && selectedDuration === "60") {
-      setSelectedDuration("90");
+    if (selectedType === "В группе" && selectedDuration === "60 минут") {
+      setConfig((prevState) => ({
+        ...prevState,
+        selectedDuration: "90 минут",
+      }));
     }
-  }, [selectedType, selectedDuration]);
+  }, [selectedDuration, selectedType]);
 
   useEffect(() => {
-    if (selectedQuantity === "1" && selectedType === "group") {
-      setSelectedType("individual");
+    if (selectedQuantity === "1" && selectedType === "В группе") {
+      setConfig((prevState) => ({
+        ...prevState,
+        selectedType: "Индивидуально",
+      }));
     }
   }, [selectedQuantity, selectedType]);
-
-  const payload: InvoiceBody = useMemo(
-    () => ({
-      currency: "RUB",
-      description: course?.description || "",
-      payload: "payload",
-      provider_token: import.meta.env.VITE_PROVIDER_TOKEN_TEST,
-      prices: [
-        {
-          label: "Course",
-          amount: "0",
-        },
-      ],
-      title: course?.title || "",
-      photo_url: course?.image,
-      send_phone_number_to_provider: true,
-      need_phone_number: true,
-      need_name: true,
-    }),
-    [course],
-  );
-
-  const createInvoice = useCallback(
-    async () =>
-      await createInvoiceLink(payload)
-        .then((url) => {
-          if (url) {
-            invoice?.open(url, "url").then((status) => {
-              if (status === "paid") navigate("/");
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        }),
-    [navigate, payload],
-  );
-
-  useEffect(() => {
-    mountMainButton();
-    setMainButtonParams({
-      backgroundColor: "#000000",
-      isVisible: true,
-      text: "ENROLL",
-      textColor: "#ffffff",
-    });
-
-    onMainButtonClick(createInvoice);
-
-    return () =>
-      setMainButtonParams({
-        isVisible: false,
-      });
-  }, [createInvoice]);
-
-  const handleSubmit = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.preventDefault();
-
-      const payload = {
-        level: selectedLevel,
-        quantity: selectedQuantity,
-        type: selectedType,
-        duration: selectedDuration,
-      };
-
-      console.log(payload);
-    },
-    [selectedDuration, selectedLevel, selectedQuantity, selectedType],
-  );
 
   const price = calculatePrice(
     selectedLevel,
@@ -135,6 +72,78 @@ export const CourseComponent = () => {
     selectedType,
     selectedDuration,
   );
+
+  const payload: InvoiceBody = useInvoicePayload(
+    config,
+    course.title,
+    price,
+    import.meta.env.VITE_PROVIDER_TOKEN,
+  );
+
+  const createInvoice = useCallback(async () => {
+    await createInvoiceLink(payload)
+      .then((url) => {
+        if (url) {
+          invoice?.open(url, "url").then((status) => {
+            setPaymentStatus(status);
+
+            if (status === "paid") navigate("/");
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [navigate, payload]);
+
+  useEffect(() => {
+    mountMainButton();
+    setMainButtonParams({
+      backgroundColor: "#000000",
+      isVisible: true,
+      text: price.toString(),
+      textColor: "#ffffff",
+    });
+
+    onMainButtonClick(createInvoice);
+
+    if (paymentStatus === "canceled") mainButton.offClick(createInvoice);
+
+    return () => {
+      setMainButtonParams({
+        isVisible: false,
+      });
+      mainButton.offClick(createInvoice);
+    };
+  }, [createInvoice, paymentStatus, price]);
+
+  const onLevelChange = (value: CourseLevel) => {
+    setConfig((prevState) => ({
+      ...prevState,
+      selectedLevel: value,
+    }));
+  };
+
+  const onQuantityChange = (value: CourseQuantity) => {
+    setConfig((prevState) => ({
+      ...prevState,
+      selectedQuantity: value,
+    }));
+  };
+
+  const onTypeChange = (value: CourseType) => {
+    setConfig((prevState) => ({
+      ...prevState,
+      selectedType: value,
+    }));
+  };
+
+  const onDurationChange = (value: CourseDuration) => {
+    setConfig((prevState) => ({
+      ...prevState,
+      selectedDuration: value,
+    }));
+  };
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled fixed>
@@ -145,23 +154,23 @@ export const CourseComponent = () => {
           {course.description}
         </Caption>
       </div>
-      <Paper>
-        <List>
+      <Paper className={"course__paper"}>
+        <List style={{ padding: 0 }}>
           <form>
             <Section>
               <Select
                 label={"Выберите уровень"}
                 value={selectedLevel}
-                onChange={setSelectedLevel}
+                onChange={onLevelChange}
               >
                 {levels.map((level) => (
-                  <option key={level}>{levelLocalization[level]}</option>
+                  <option key={level}>{level}</option>
                 ))}
               </Select>
               <Select
                 label={"Количество занятий"}
                 value={selectedQuantity}
-                onChange={setSelectedQuantity}
+                onChange={onQuantityChange}
               >
                 {quantity.map((count) => (
                   <option key={count}>{count}</option>
@@ -170,15 +179,15 @@ export const CourseComponent = () => {
               <Select
                 label={"Тип занятия"}
                 value={selectedType}
-                onChange={setSelectedType}
+                onChange={onTypeChange}
               >
                 {types.map((type) => {
                   return (
                     <option
-                      disabled={type === "group" && selectedQuantity === "1"}
+                      disabled={type === "В группе" && selectedQuantity === "1"}
                       key={type}
                     >
-                      {typeLocalization[type]}
+                      {type}
                     </option>
                   );
                 })}
@@ -186,23 +195,22 @@ export const CourseComponent = () => {
               <Select
                 label={"Длительность"}
                 value={selectedDuration}
-                onChange={setSelectedDuration}
+                onChange={onDurationChange}
               >
                 {durations.map((duration) => (
                   <option
-                    disabled={duration === "60" && selectedType === "group"}
+                    disabled={
+                      duration === "60 минут" && selectedType === "В группе"
+                    }
                     key={duration}
                   >
-                    {durationLocalization[duration]}
+                    {duration}
                   </option>
                 ))}
               </Select>
             </Section>
           </form>
         </List>
-        <Button type={"submit"} onClick={(e) => handleSubmit(e)}>
-          Записаться
-        </Button>
       </Paper>
     </Page>
   );
