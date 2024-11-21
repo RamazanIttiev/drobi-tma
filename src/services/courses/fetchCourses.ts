@@ -4,7 +4,11 @@ export const fetchCourses = async (): Promise<Course[]> => {
   const coursesUrl = `${import.meta.env.VITE_API_URL}/courses`;
 
   try {
-    const res = await fetch(coursesUrl);
+    const res = await fetch(coursesUrl, {
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
 
     if (!res.ok) {
       throw new Error(
