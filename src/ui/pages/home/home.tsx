@@ -1,8 +1,9 @@
 import { Page } from "@/ui/organisms/page/page.tsx";
-import { Card } from "@/ui/molecules/card/card.tsx";
 import { Link } from "@/ui/atoms/link/link.tsx";
 import { Course } from "@/ui/pages/course/course.model.ts";
 import { useLoaderData } from "react-router-dom";
+
+import { Avatar, Cell } from "@telegram-apps/telegram-ui";
 
 import "./home.css";
 
@@ -12,14 +13,14 @@ export const HomeComponent = () => {
   return (
     <Page back={false}>
       <div className="home">
-        {courses.map(({ id, title, image, shortDescription }) => (
+        {courses.map(({ id, title, image }) => (
           <Link to={`subject/${id}`} state={id} key={id}>
-            <Card
-              title={title}
-              image={image}
-              subtitle={shortDescription}
-              className="home--card"
-            />
+            <Cell
+              before={<Avatar size={96} src={image} />}
+              className={"home__cell"}
+            >
+              {title}
+            </Cell>
           </Link>
         ))}
       </div>

@@ -1,5 +1,5 @@
 .paper {
-  background: var(--tgui--bg_color);
+  background: var(--tgui--secondary_bg_color);
   padding-top: 1rem;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;

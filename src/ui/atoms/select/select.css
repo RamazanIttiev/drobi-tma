@@ -1,11 +1,11 @@
 .select {
   position: relative;
-  padding: 0.2rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-family: var(--tgui--font-family), serif;
   line-height: var(--tgui--text--line_height);
+  padding: 0 1rem;
 
   &__label {
     padding: 0.5rem 0;
@@ -16,30 +16,39 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: -webkit-fill-available;
+
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    background: var(--tgui--secondary_bg_color);
   }
 
   &__field {
-    width: 100%;
     background: transparent;
-    color: var(--tg-theme-accent-text-color);
-    padding: 0.5rem;
+    color: var(--tgui--accent_text_color);
     border: none;
     font-family: var(--tgui--font-family), serif;
     font-size: var(--tgui--text--font_size);
     line-height: var(--tgui--text--line_height);
     z-index: 1;
     text-align: end;
+    direction: rtl;
+    outline: none;
 
     -moz-appearance: none; /* Firefox */
     -webkit-appearance: none; /* Safari and Chrome */
     appearance: none;
+
+    & option {
+      direction: ltr;
+    }
   }
 
   &__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    fill: var(--tg-theme-accent-text-color);
+    fill: var(--tgui--accent_text_color);
+
+    padding-left: 0.5rem;
   }
 }

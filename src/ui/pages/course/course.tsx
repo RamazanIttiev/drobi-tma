@@ -155,9 +155,9 @@ export const CourseComponent = () => {
         </Caption>
       </div>
       <Paper className={"course__paper"}>
-        <List style={{ padding: 0 }}>
+        <List className={"course__list"}>
           <form>
-            <Section>
+            <Section className={"course__section"}>
               <Select
                 label={"Выберите уровень"}
                 value={selectedLevel}
