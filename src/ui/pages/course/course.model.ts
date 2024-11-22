@@ -6,8 +6,6 @@ export interface Course {
   image: string;
 }
 
-export const BASE_CURRENCY = "RUB";
-
 export interface CourseConfig {
   selectedLevel: CourseLevel;
   selectedQuantity: CourseQuantity;

@@ -22,7 +22,13 @@ import {
   types,
 } from "@/ui/pages/course/course.model.ts";
 import { Image } from "@telegram-apps/telegram-ui/dist/components/Blocks/Image/Image";
-import { Caption, LargeTitle, List, Section } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  Caption,
+  LargeTitle,
+  List,
+  Section,
+} from "@telegram-apps/telegram-ui";
 
 import { Paper } from "@/ui/atoms/paper/paper.tsx";
 import { Select } from "@/ui/atoms/select/select.tsx";
@@ -31,7 +37,7 @@ import "./course.css";
 import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
 import { createInvoiceLink } from "@/services/invoice/invoice.ts";
 
-import { useInvoicePayload } from "@/ui/pages/course/hooks/use-payload.hook.ts";
+import { getInvoicePayload } from "@/services/invoice/get-invoice-payload.hook.ts";
 
 export const CourseComponent = () => {
   const course = useLoaderData() as Course;
@@ -73,7 +79,7 @@ export const CourseComponent = () => {
     selectedDuration,
   );
 
-  const payload: InvoiceBody = useInvoicePayload(
+  const payload: InvoiceBody = getInvoicePayload(
     config,
     course.title,
     price,
@@ -96,26 +102,36 @@ export const CourseComponent = () => {
       });
   }, [navigate, payload]);
 
+  const navigateToCheckout = useCallback(() => {
+    navigate(`/checkout/${course.id}`, {
+      state: {
+        title: course.title,
+        price,
+        config,
+      },
+    });
+  }, [config, course.id, course.title, navigate, price]);
+
   useEffect(() => {
     mountMainButton();
     setMainButtonParams({
       backgroundColor: "#000000",
       isVisible: true,
-      text: price.toString(),
+      text: `К оплате ${price.toString()} ₽`,
       textColor: "#ffffff",
     });
 
-    onMainButtonClick(createInvoice);
+    onMainButtonClick(navigateToCheckout);
 
-    if (paymentStatus === "canceled") mainButton.offClick(createInvoice);
+    if (paymentStatus === "canceled") mainButton.offClick(navigateToCheckout);
 
     return () => {
       setMainButtonParams({
         isVisible: false,
       });
-      mainButton.offClick(createInvoice);
+      mainButton.offClick(navigateToCheckout);
     };
-  }, [createInvoice, paymentStatus, price]);
+  }, [course.id, navigateToCheckout, paymentStatus, price]);
 
   const onLevelChange = (value: CourseLevel) => {
     setConfig((prevState) => ({
@@ -211,6 +227,9 @@ export const CourseComponent = () => {
             </Section>
           </form>
         </List>
+        <Button onClick={navigateToCheckout} stretched>
+          Pay
+        </Button>
       </Paper>
     </Page>
   );

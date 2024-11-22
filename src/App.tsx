@@ -7,6 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import { CourseCheckoutComponent } from "@/ui/pages/course/checkout/checkout.tsx";
 import { HomeComponent } from "@/ui/pages/home/home.tsx";
 import { CourseComponent } from "@/ui/pages/course/course.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
         element={<CourseComponent />}
         loader={({ params }) => fetchCourse(params.id)}
       />
+      <Route path="checkout/:id" element={<CourseCheckoutComponent />} />
     </>,
   ),
 );
