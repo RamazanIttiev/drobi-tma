@@ -1,6 +1,6 @@
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { Caption, List, Section, Text } from "@telegram-apps/telegram-ui";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
 import "./checkout.css";
@@ -12,6 +12,10 @@ interface CourseCheckoutState {
   title: string;
   price: number;
   config: CourseConfig;
+  cardNumber: string;
+  expiryDate: string;
+  cvc: string;
+  cardHolder: string;
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -23,17 +27,20 @@ const checkoutYooKassa = window.YooMoneyCheckout(
 
 export const CourseCheckoutPage = () => {
   const location = useLocation();
-  const course = location.state as CourseCheckoutState;
+  const state = location.state as CourseCheckoutState;
+  const navigate = useNavigate();
 
-  const { title, price, config } = course;
+  const { title, price, config, cardNumber, cardHolder, cvc, expiryDate } =
+    state;
+
   const { selectedDuration, selectedQuantity, selectedType, selectedLevel } =
     config;
 
   const handlePayment = () =>
     checkoutYooKassa
       .tokenize({
-        number: "5555555555577",
-        cvc: "122",
+        number: cardNumber,
+        cvc,
         month: "12",
         year: "24",
       })
@@ -56,38 +63,56 @@ export const CourseCheckoutPage = () => {
         }
       });
 
+  const navigateToPayment = () => {
+    navigate("/payment-details", {
+      state: {
+        from: location.pathname,
+        checkoutState: location.state,
+      },
+    });
+  };
+
   return (
     <Page>
       <List>
         <Section header="Проверь свой выбор">
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>Курс</Caption>
+            <Caption className={"checkout__hint"}>Курс</Caption>
             <Text>{title}</Text>
           </div>
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>Уровень</Caption>
+            <Caption className={"checkout__hint"}>Уровень</Caption>
             <Text>{selectedLevel}</Text>
           </div>
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>Количество уроков</Caption>
+            <Caption className={"checkout__hint"}>Количество уроков</Caption>
             <Text>{selectedQuantity}</Text>
           </div>
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>
-              Длительность урока
-            </Caption>
+            <Caption className={"checkout__hint"}>Длительность урока</Caption>
             <Text>{selectedDuration}</Text>
           </div>
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>Тип</Caption>
+            <Caption className={"checkout__hint"}>Тип</Caption>
             <Text>{selectedType}</Text>
           </div>
         </Section>
+
         <Section>
           <div className={"checkout__cell"}>
-            <Caption className={"checkout__caption"}>Всего</Caption>
+            <Caption className={"checkout__hint"}>Всего</Caption>
             <Text>{price} ₽</Text>
           </div>
+        </Section>
+
+        <Section>
+          <button
+            className={"checkout__cell checkout__cell_button"}
+            onClick={navigateToPayment}
+          >
+            <Text>Оплата</Text>
+            <Text className={"checkout__hint"}>*4242</Text>
+          </button>
         </Section>
       </List>
     </Page>

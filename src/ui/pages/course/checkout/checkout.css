@@ -4,9 +4,19 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1.4rem;
+    min-height: 42px;
+    box-sizing: border-box;
+
+    &_button {
+      background: transparent;
+      border: none;
+      width: 100%;
+      color: unset;
+      outline: none;
+    }
   }
 
-  &__caption {
+  &__hint {
     color: var(--tgui--hint_color);
   }
 }

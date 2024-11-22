@@ -12,6 +12,7 @@ import { HomePage } from "@/ui/pages/home/home.tsx";
 import { CoursePage } from "@/ui/pages/course/course.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";
 import { fetchCourse } from "@/services/courses/fetchCourse.ts";
+import { PaymentDetailsPage } from "@/ui/pages/payment/payment.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,6 +24,7 @@ const router = createBrowserRouter(
         loader={({ params }) => fetchCourse(params.id)}
       />
       <Route path="checkout/:id" element={<CourseCheckoutPage />} />
+      <Route path="payment-details" element={<PaymentDetailsPage />} />
     </>,
   ),
 );
