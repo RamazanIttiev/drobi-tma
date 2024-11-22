@@ -1,4 +1,5 @@
 import { Course } from "@/ui/pages/course/course.model.ts";
+import { courses } from "@/mocks/courses.ts";
 
 export const fetchCourses = async (): Promise<Course[]> => {
   const coursesUrl = `${import.meta.env.VITE_API_URL}/courses`;
@@ -18,9 +19,14 @@ export const fetchCourses = async (): Promise<Course[]> => {
 
     return await res.json();
   } catch (err) {
-    // If 'err' is not an Error object, create a new one with its message.
-    throw err instanceof Error
-      ? err
-      : new Error(`An error occurred: ${String(err)}`);
+    if (
+      import.meta.env.MODE === "development" &&
+      import.meta.env.VITE_IS_MOCK_API === "true"
+    ) {
+      return courses;
+    } else {
+      console.log(err);
+      throw Error(`Failed to fetch courses because server is down`);
+    }
   }
 };
