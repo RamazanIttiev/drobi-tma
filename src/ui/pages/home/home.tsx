@@ -7,7 +7,7 @@ import { Avatar, Cell } from "@telegram-apps/telegram-ui";
 
 import "./home.css";
 
-export const HomeComponent = () => {
+export const HomePage = () => {
   const courses = useLoaderData() as Course[];
 
   return (

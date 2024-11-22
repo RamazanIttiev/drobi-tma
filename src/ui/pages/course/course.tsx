@@ -39,7 +39,7 @@ import { createInvoiceLink } from "@/services/invoice/invoice.ts";
 
 import { getInvoicePayload } from "@/services/invoice/get-invoice-payload.hook.ts";
 
-export const CourseComponent = () => {
+export const CoursePage = () => {
   const course = useLoaderData() as Course;
   const navigate = useNavigate();
 

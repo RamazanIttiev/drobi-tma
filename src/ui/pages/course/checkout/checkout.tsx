@@ -21,7 +21,7 @@ const checkoutYooKassa = window.YooMoneyCheckout(
   },
 );
 
-export const CourseCheckoutComponent = () => {
+export const CourseCheckoutPage = () => {
   const location = useLocation();
   const course = location.state as CourseCheckoutState;
 
