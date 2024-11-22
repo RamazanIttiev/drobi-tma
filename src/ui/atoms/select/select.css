@@ -6,6 +6,8 @@
   font-family: var(--tgui--font-family), serif;
   line-height: var(--tgui--text--line_height);
   padding: 0 1rem;
+  min-height: 42px;
+  cursor: pointer;
 
   &__label {
     padding: 0.5rem 0;
@@ -19,7 +21,6 @@
 
     border-radius: 4px;
     padding: 0.2rem 0.5rem;
-    background: var(--tgui--secondary_bg_color);
   }
 
   &__field {
@@ -33,6 +34,7 @@
     text-align: end;
     direction: rtl;
     outline: none;
+    cursor: pointer;
 
     -moz-appearance: none; /* Firefox */
     -webkit-appearance: none; /* Safari and Chrome */

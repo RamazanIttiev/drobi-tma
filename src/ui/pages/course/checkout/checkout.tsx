@@ -73,7 +73,7 @@ export const CourseCheckoutPage = () => {
   };
 
   return (
-    <Page>
+    <Page horizontalPaddingDisabled verticalPaddingDisabled>
       <List>
         <Section header="Проверь свой выбор">
           <div className={"checkout__cell"}>

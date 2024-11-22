@@ -1,4 +1,9 @@
 .payment {
+  &__card-number {
+    svg {
+      fill: var(--tgui--accent_text_color);
+    }
+  }
   &__exp-cvc {
     display: flex;
     align-items: center;

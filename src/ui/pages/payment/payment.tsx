@@ -1,11 +1,18 @@
 import { useCallback, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
-import { Button, IconButton, Input, Section } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  IconButton,
+  Input,
+  List,
+  Section,
+} from "@telegram-apps/telegram-ui";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PatternFormat } from "react-number-format";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
+import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
 
@@ -41,6 +48,7 @@ export const PaymentDetailsPage = () => {
         ...state.checkoutState,
         paymentData,
       },
+      replace: true,
     });
   }, [navigate, state.from, state.checkoutState, paymentData]);
 
@@ -50,60 +58,64 @@ export const PaymentDetailsPage = () => {
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
-      <Section header="Данные карты">
-        <PatternFormat
-          customInput={Input}
-          format={"#### #### #### ####"}
-          required
-          inputMode={"numeric"}
-          autoComplete={"cc-number"}
-          header="Номер карты"
-          placeholder="1234 5678 1234 5678"
-          value={paymentData.cardNumber}
-          onChange={handleChange("cardNumber")}
-        />
-
-        <div className={"payment__exp-cvc"}>
+      <List>
+        <Section header="Данные карты">
           <PatternFormat
             customInput={Input}
-            format={"##/##"}
+            className={"payment__card-number"}
+            format={"#### #### #### ####"}
             required
             inputMode={"numeric"}
-            autoComplete={"cc-exp"}
-            header="Срок"
-            placeholder="12/29"
-            value={paymentData.expiryDate}
-            onChange={handleChange("expiryDate")}
+            autoComplete={"cc-number"}
+            header="Номер карты"
+            after={<IconCard />}
+            placeholder="1234 5678 1234 5678"
+            value={paymentData.cardNumber}
+            onChange={handleChange("cardNumber")}
           />
 
-          <PatternFormat
-            customInput={Input}
-            format={"###"}
-            required
-            type={isCVCVisible ? "text" : "password"}
-            inputMode={"numeric"}
-            autoComplete={"off"}
-            header="cvc"
-            after={
-              <IconButton onClick={handleTogglePassword}>
-                {isCVCVisible ? <IconEyeOpened /> : <IconEyeClosed />}
-              </IconButton>
-            }
-            placeholder="123"
-            value={paymentData.cvc}
-            onChange={handleChange("cvc")}
+          <div className={"payment__exp-cvc"}>
+            <PatternFormat
+              customInput={Input}
+              format={"##/##"}
+              required
+              inputMode={"numeric"}
+              autoComplete={"cc-exp"}
+              header="Срок"
+              placeholder="12/29"
+              value={paymentData.expiryDate}
+              onChange={handleChange("expiryDate")}
+            />
+
+            <PatternFormat
+              customInput={Input}
+              format={"###"}
+              required
+              type={isCVCVisible ? "text" : "password"}
+              inputMode={"numeric"}
+              autoComplete={"off"}
+              header="cvc"
+              after={
+                <IconButton onClick={handleTogglePassword}>
+                  {isCVCVisible ? <IconEyeOpened /> : <IconEyeClosed />}
+                </IconButton>
+              }
+              placeholder="123"
+              value={paymentData.cvc}
+              onChange={handleChange("cvc")}
+            />
+          </div>
+        </Section>
+        <Section footer="Telegram не имеет доступа к твоей карте. Все данные передаются напрямую в YooKassa">
+          <Input
+            header="Имя на карте"
+            autoComplete={"cc-name"}
+            placeholder="Держатель карты"
+            value={paymentData.cardHolder}
+            onChange={handleChange("cardHolder")}
           />
-        </div>
-      </Section>
-      <Section footer="Telegram не имеет доступа к твоей карте. Все данные передаются напрямую в YooKassa">
-        <Input
-          header="Имя на карте"
-          autoComplete={"cc-name"}
-          placeholder="Держатель карты"
-          value={paymentData.cardHolder}
-          onChange={handleChange("cardHolder")}
-        />
-      </Section>
+        </Section>
+      </List>
       <Button onClick={handleSubmit} stretched>
         Сохранить
       </Button>
