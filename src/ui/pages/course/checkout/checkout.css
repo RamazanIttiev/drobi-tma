@@ -19,4 +19,8 @@
   &__hint {
     color: var(--tgui--hint_color);
   }
+
+  &__cardNumber {
+    font-family: monospace !important;
+  }
 }

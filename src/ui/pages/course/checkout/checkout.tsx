@@ -3,19 +3,22 @@ import { Caption, List, Section, Text } from "@telegram-apps/telegram-ui";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
-import "./checkout.css";
 import { TokenResponse } from "@/services/payments/yookassa-payment-token.model.ts";
 import { getYooKassaPayload } from "@/services/payments/get-yookassa-payload.ts";
 import { createPayment } from "@/services/payments/createPayment.ts";
+
+import "./checkout.css";
 
 interface CourseCheckoutState {
   title: string;
   price: number;
   config: CourseConfig;
-  cardNumber: string;
-  expiryDate: string;
-  cvc: string;
-  cardHolder: string;
+  paymentData: {
+    cardNumber: string;
+    expiryDate: string;
+    cvc: string;
+    cardHolder: string;
+  };
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -30,19 +33,21 @@ export const CourseCheckoutPage = () => {
   const state = location.state as CourseCheckoutState;
   const navigate = useNavigate();
 
-  const { title, price, config, cardNumber, cardHolder, cvc, expiryDate } =
-    state;
+  const { title, price, config, paymentData } = state;
 
   const { selectedDuration, selectedQuantity, selectedType, selectedLevel } =
     config;
 
+  const expMonth = paymentData?.expiryDate?.slice(0, 2);
+  const expYear = paymentData?.expiryDate?.slice(3, 5);
+
   const handlePayment = () =>
     checkoutYooKassa
       .tokenize({
-        number: cardNumber,
-        cvc,
-        month: "12",
-        year: "24",
+        number: paymentData?.cardNumber,
+        cvc: paymentData?.cvc,
+        month: expMonth,
+        year: expYear,
       })
       .then(async (res: TokenResponse) => {
         if (res.status === "success") {
@@ -70,6 +75,16 @@ export const CourseCheckoutPage = () => {
         checkoutState: location.state,
       },
     });
+  };
+
+  const getLatNumbers = () => {
+    if (!paymentData?.cardNumber) return "*4242";
+
+    return (
+      <Caption className={"checkout__cardNumber"}>
+        {`**** ${paymentData.cardNumber.slice(-4)}`}
+      </Caption>
+    );
   };
 
   return (
@@ -111,7 +126,7 @@ export const CourseCheckoutPage = () => {
             onClick={navigateToPayment}
           >
             <Text>Оплата</Text>
-            <Text className={"checkout__hint"}>*4242</Text>
+            <Text className={"checkout__hint"}>{getLatNumbers()}</Text>
           </button>
         </Section>
       </List>

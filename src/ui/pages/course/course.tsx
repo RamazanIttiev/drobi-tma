@@ -2,7 +2,6 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { useCallback, useEffect, useState } from "react";
 import {
-  invoice,
   mainButton,
   mountMainButton,
   onMainButtonClick,
@@ -34,16 +33,11 @@ import { Paper } from "@/ui/atoms/paper/paper.tsx";
 import { Select } from "@/ui/atoms/select/select.tsx";
 
 import "./course.css";
-import { InvoiceBody } from "@/services/invoice/invoice.model.ts";
-import { createInvoiceLink } from "@/services/invoice/invoice.ts";
-
-import { getInvoicePayload } from "@/services/invoice/get-invoice-payload.hook.ts";
 
 export const CoursePage = () => {
   const course = useLoaderData() as Course;
   const navigate = useNavigate();
 
-  const [paymentStatus, setPaymentStatus] = useState<string>();
   const [config, setConfig] = useState<CourseConfig>({
     selectedLevel: "5-8 класс",
     selectedQuantity: "1",
@@ -79,28 +73,30 @@ export const CoursePage = () => {
     selectedDuration,
   );
 
-  const payload: InvoiceBody = getInvoicePayload(
-    config,
-    course.title,
-    price,
-    import.meta.env.VITE_PROVIDER_TOKEN,
-  );
+  // Native Telegram invoice window
 
-  const createInvoice = useCallback(async () => {
-    await createInvoiceLink(payload)
-      .then((url) => {
-        if (url) {
-          invoice?.open(url, "url").then((status) => {
-            setPaymentStatus(status);
+  // const payload: InvoiceBody = getInvoicePayload(
+  //   config,
+  //   course.title,
+  //   price,
+  //   import.meta.env.VITE_PROVIDER_TOKEN,
+  // );
 
-            if (status === "paid") navigate("/");
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [navigate, payload]);
+  // const createInvoice = useCallback(async () => {
+  //   await createInvoiceLink(payload)
+  //     .then((url) => {
+  //       if (url) {
+  //         invoice?.open(url, "url").then((status) => {
+  //           setPaymentStatus(status);
+  //
+  //           if (status === "paid") navigate("/");
+  //         });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // }, [navigate, payload]);
 
   const navigateToCheckout = useCallback(() => {
     navigate(`/checkout/${course.id}`, {
@@ -123,7 +119,8 @@ export const CoursePage = () => {
 
     onMainButtonClick(navigateToCheckout);
 
-    if (paymentStatus === "canceled") mainButton.offClick(navigateToCheckout);
+    // Native Telegram invoice window
+    // if (paymentStatus === "canceled") mainButton.offClick(navigateToCheckout);
 
     return () => {
       setMainButtonParams({
@@ -131,7 +128,7 @@ export const CoursePage = () => {
       });
       mainButton.offClick(navigateToCheckout);
     };
-  }, [course.id, navigateToCheckout, paymentStatus, price]);
+  }, [course.id, navigateToCheckout, price]);
 
   const onLevelChange = (value: CourseLevel) => {
     setConfig((prevState) => ({

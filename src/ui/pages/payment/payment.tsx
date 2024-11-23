@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
 import {
   Button,
@@ -15,6 +15,12 @@ import IconEyeClosed from "@/assets/icons/eye-closed.svg";
 import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
+import {
+  mainButton,
+  mountMainButton,
+  onMainButtonClick,
+  setMainButtonParams,
+} from "@telegram-apps/sdk-react";
 
 interface PaymentDetailsState {
   cardNumber: string;
@@ -55,6 +61,25 @@ export const PaymentDetailsPage = () => {
   const handleTogglePassword = useCallback(() => {
     setIsCVCVisible((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    mountMainButton();
+    setMainButtonParams({
+      backgroundColor: "#000000",
+      isVisible: true,
+      text: `Сохранить`,
+      textColor: "#ffffff",
+    });
+
+    onMainButtonClick(handleSubmit);
+
+    return () => {
+      setMainButtonParams({
+        isVisible: false,
+      });
+      mainButton.offClick(handleSubmit);
+    };
+  }, [handleSubmit]);
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
