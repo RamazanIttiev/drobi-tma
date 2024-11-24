@@ -1,3 +1,14 @@
+import { ICreatePayment } from "@a2seven/yoo-checkout";
+import { BASE_CURRENCY } from "@/common/models.ts";
+
+export interface PaymentData {
+  cardNumber: string;
+  expiryDate: string;
+  cvc: string;
+}
+
+export interface CreatePaymentPayload extends ICreatePayment {}
+
 interface TokenSuccessResponse {
   data: {
     message: string;
@@ -10,7 +21,7 @@ interface TokenSuccessResponse {
   status: "success";
 }
 
-interface TokenErrorResponse {
+export interface TokenErrorResponse {
   error: {
     code: string;
     message: string;
@@ -27,6 +38,8 @@ interface TokenErrorResponse {
 export interface FieldErrors {
   [key: string]: string;
 }
+
+export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
 
 const fieldErrorMapping: Record<string, string> = {
   invalid_number: "cardNumber",
@@ -50,4 +63,28 @@ export const mapErrorsToFields = (
   return fieldErrors;
 };
 
-export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
+export const getPaymentPayload = (
+  payment_token: string,
+  description: string,
+  merchant_customer_id: string,
+  amount: string,
+): CreatePaymentPayload => {
+  return {
+    payment_token,
+    amount: {
+      value: amount,
+      currency: BASE_CURRENCY,
+    },
+    description,
+    merchant_customer_id,
+    capture: true,
+    confirmation: {
+      type: "redirect",
+      return_url: import.meta.env.VITE_SUCCESS_PAYMENT_URL,
+    },
+  };
+};
+
+export const isTokenResponseSuccessful = (
+  response: string | TokenErrorResponse,
+) => typeof response === "string";

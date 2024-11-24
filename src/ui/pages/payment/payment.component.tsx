@@ -18,32 +18,25 @@ import {
 } from "@telegram-apps/sdk-react";
 import {
   FieldErrors,
+  isTokenResponseSuccessful,
   mapErrorsToFields,
-  TokenResponse,
-} from "@/services/payments/yookassa-payment-token.model.ts";
+} from "@/ui/pages/payment/payment.model.ts";
+import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
 import IconCard from "@/assets/icons/card-icon.svg";
 
-import "./payment-data.css";
+import "./payment.css";
 
-const checkoutYooKassa = window.YooMoneyCheckout(
-  import.meta.env.VITE_YOOKASSA_SHOP_ID,
-  {
-    language: "ru",
-  },
-);
-
-export const PaymentDataPage = () => {
+export const PaymentPage = () => {
   const navigate = useNavigate();
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
 
-  const { paymentData, setPaymentData, setPaymentToken } = usePayment();
+  const vm = usePaymentViewModel();
 
-  const expMonth = paymentData?.expiryDate?.slice(0, 2);
-  const expYear = paymentData?.expiryDate?.slice(3, 5);
+  const { paymentData, setPaymentData, setPaymentToken } = usePayment();
 
   const handleChange =
     (field: keyof typeof paymentData) =>
@@ -67,42 +60,26 @@ export const PaymentDataPage = () => {
 
   const submitPaymentData = useCallback(
     () =>
-      checkoutYooKassa
-        .tokenize({
-          number: paymentData?.cardNumber,
-          cvc: paymentData?.cvc,
-          month: expMonth,
-          year: expYear,
-        })
-        .then(async (res: TokenResponse) => {
+      vm.getPaymentToken(paymentData).then((res) => {
+        setMainButtonParams({
+          isLoaderVisible: true,
+        });
+
+        if (isTokenResponseSuccessful(res)) {
+          setPaymentToken(res);
+
           setMainButtonParams({
-            isLoaderVisible: true,
+            isLoaderVisible: false,
           });
 
-          if (res.status === "success") {
-            const { paymentToken } = res.data.response;
+          navigate(-1);
+        } else {
+          const fieldErrors = mapErrorsToFields(res);
 
-            setPaymentToken(paymentToken);
-
-            setMainButtonParams({
-              isLoaderVisible: false,
-            });
-
-            navigate(-1);
-          } else {
-            const fieldErrors = mapErrorsToFields(res);
-
-            setErrors(fieldErrors);
-          }
-        }),
-    [
-      expMonth,
-      expYear,
-      navigate,
-      paymentData?.cardNumber,
-      paymentData?.cvc,
-      setPaymentToken,
-    ],
+          setErrors(fieldErrors);
+        }
+      }),
+    [navigate, paymentData, setPaymentToken, vm],
   );
 
   useEffect(() => {

@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-
-export interface PaymentData {
-  cardNumber: string;
-  expiryDate: string;
-  cvc: string;
-  cardHolder: string;
-}
+import { PaymentData } from "@/ui/pages/payment/payment.model.ts";
 
 interface PaymentContextType {
   paymentData: PaymentData;
@@ -19,7 +13,6 @@ const PaymentContext = createContext<PaymentContextType>({
     cardNumber: "",
     expiryDate: "",
     cvc: "",
-    cardHolder: "",
   },
   payment_token: undefined,
   setPaymentData: () => {},
@@ -35,7 +28,6 @@ export const PaymentProvider = ({
     cardNumber: "",
     expiryDate: "",
     cvc: "",
-    cardHolder: "",
   });
 
   const [payment_token, setPaymentToken] = useState<string | undefined>(
