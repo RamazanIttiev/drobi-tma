@@ -12,7 +12,8 @@ import { HomePage } from "@/ui/pages/home/home.tsx";
 import { CoursePage } from "@/ui/pages/course/course.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";
 import { fetchCourse } from "@/services/courses/fetchCourse.ts";
-import { PaymentDetailsPage } from "@/ui/pages/payment/payment.tsx";
+import { PaymentDataPage } from "@/ui/pages/payment-data/payment-data.tsx";
+import { PaymentProvider } from "@/context/payment-data.context.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -24,7 +25,7 @@ const router = createBrowserRouter(
         loader={({ params }) => fetchCourse(params.id)}
       />
       <Route path="checkout/:id" element={<CourseCheckoutPage />} />
-      <Route path="payment-details" element={<PaymentDetailsPage />} />
+      <Route path="payment-details" element={<PaymentDataPage />} />
     </>,
   ),
 );
@@ -38,7 +39,9 @@ export function App() {
       appearance={isDark ? "dark" : "light"}
       platform={["macos", "ios"].includes(lp.platform) ? "ios" : "base"}
     >
-      <RouterProvider router={router} />
+      <PaymentProvider>
+        <RouterProvider router={router} />
+      </PaymentProvider>
     </AppRoot>
   );
 }
