@@ -58,29 +58,20 @@ export const PaymentPage = () => {
     setIsCVCVisible((prev) => !prev);
   }, []);
 
-  const submitPaymentData = useCallback(
-    () =>
-      vm.getPaymentToken(paymentData).then((res) => {
-        setMainButtonParams({
-          isLoaderVisible: true,
-        });
+  const submitPaymentData = useCallback(async () => {
+    const payment_token = await vm.fetchPaymentToken(paymentData);
 
-        if (isTokenResponseSuccessful(res)) {
-          setPaymentToken(res);
+    if (isTokenResponseSuccessful(payment_token)) {
+      setPaymentToken(payment_token);
+      await vm.setPaymentTokenToStorage(payment_token);
 
-          setMainButtonParams({
-            isLoaderVisible: false,
-          });
+      navigate(-1);
+    } else {
+      const fieldErrors = mapErrorsToFields(payment_token);
 
-          navigate(-1);
-        } else {
-          const fieldErrors = mapErrorsToFields(res);
-
-          setErrors(fieldErrors);
-        }
-      }),
-    [navigate, paymentData, setPaymentToken, vm],
-  );
+      setErrors(fieldErrors);
+    }
+  }, [navigate, paymentData, setPaymentToken, vm]);
 
   useEffect(() => {
     mountMainButton();

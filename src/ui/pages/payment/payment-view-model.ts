@@ -3,11 +3,14 @@ import {
   TokenErrorResponse,
   TokenResponse,
 } from "@/ui/pages/payment/payment.model.ts";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 
 interface PaymentViewModel {
-  getPaymentToken: (
+  fetchPaymentToken: (
     paymentData: PaymentData,
   ) => Promise<string | TokenErrorResponse>;
+  getLastDigitsFromStorage: () => Promise<string | undefined>;
+  setPaymentTokenToStorage: (token: string) => Promise<void>;
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -18,7 +21,9 @@ const checkoutYooKassa = window.YooMoneyCheckout(
 );
 
 export const usePaymentViewModel = (): PaymentViewModel => {
-  const getPaymentToken = async (
+  const { getItem, setItem } = useCloudStorage();
+
+  const fetchPaymentToken = async (
     paymentData: PaymentData,
   ): Promise<string | TokenErrorResponse> => {
     const expMonth = paymentData?.expiryDate?.slice(0, 2);
@@ -36,7 +41,19 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       );
   };
 
+  const getLastDigitsFromStorage = async () => {
+    return getItem(["last_digits"])?.then((res) => {
+      return res.last_digits === "" ? undefined : res.last_digits;
+    });
+  };
+
+  const setPaymentTokenToStorage = async (token: string) => {
+    await setItem("payment_token", token);
+  };
+
   return {
-    getPaymentToken,
+    fetchPaymentToken,
+    getLastDigitsFromStorage,
+    setPaymentTokenToStorage,
   };
 };

@@ -1,12 +1,11 @@
 import { Course } from "@/ui/pages/course/course.model.ts";
 import { courses } from "@/mocks/courses.ts";
-import { fetchData } from "@/common/api/fetchData.ts";
+import axios from "axios";
+import { ngrokHeader } from "@/common/models.ts";
 
 export const fetchCourse = async (id: string | undefined): Promise<Course> => {
-  const url = `${import.meta.env.VITE_API_URL}/course/${id}`;
-
   try {
-    return await fetchData({ url });
+    return await axios.get(`/course/${id}`, { headers: { ...ngrokHeader } });
   } catch (err) {
     if (
       import.meta.env.MODE === "development" &&

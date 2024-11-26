@@ -7,7 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { CourseCheckoutPage } from "@/ui/pages/course/checkout/checkout.tsx";
+import { CourseCheckoutPage } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
 import { HomePage } from "@/ui/pages/home/home.tsx";
 import { CoursePage } from "@/ui/pages/course/course.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";

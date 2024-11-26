@@ -1,4 +1,4 @@
-import { ICreatePayment } from "@a2seven/yoo-checkout";
+import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
 import { BASE_CURRENCY } from "@/common/models.ts";
 
 export interface PaymentData {
@@ -8,6 +8,9 @@ export interface PaymentData {
 }
 
 export interface CreatePaymentPayload extends ICreatePayment {}
+export interface CreatePaymentResponse {
+  data: Payment;
+}
 
 interface TokenSuccessResponse {
   data: {
@@ -63,12 +66,16 @@ export const mapErrorsToFields = (
   return fieldErrors;
 };
 
-export const getPaymentPayload = (
-  payment_token: string,
-  description: string,
-  merchant_customer_id: string,
-  amount: string,
-): CreatePaymentPayload => {
+export const getPaymentPayload = ({
+  payment_token,
+  amount,
+  description,
+  merchant_customer_id,
+  save_payment_method,
+  payment_method_id,
+}: Omit<ICreatePayment, "amount"> & {
+  amount: string;
+}): ICreatePayment => {
   return {
     payment_token,
     amount: {
@@ -82,9 +89,13 @@ export const getPaymentPayload = (
       type: "redirect",
       return_url: import.meta.env.VITE_SUCCESS_PAYMENT_URL,
     },
+    save_payment_method,
+    payment_method_id,
   };
 };
 
 export const isTokenResponseSuccessful = (
   response: string | TokenErrorResponse,
-) => typeof response === "string";
+): response is string => {
+  return typeof response === "string";
+};
