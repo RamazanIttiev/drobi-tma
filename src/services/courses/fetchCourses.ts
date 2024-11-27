@@ -5,7 +5,10 @@ import { ngrokHeader } from "@/common/models.ts";
 
 export const fetchCourses = async (): Promise<Course[]> => {
   try {
-    return await axios.get("/courses", { headers: { ...ngrokHeader } });
+    const response = await axios.get("/courses", {
+      headers: { ...ngrokHeader },
+    });
+    return response.data.json();
   } catch (err) {
     if (
       import.meta.env.MODE === "development" &&

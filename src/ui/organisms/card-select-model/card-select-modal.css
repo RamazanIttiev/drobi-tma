@@ -1,0 +1,14 @@
+.cardSelectModal {
+  &__section {
+    padding-bottom: 1rem;
+  }
+
+  &__link {
+    color: var(--tgui--text_color);
+    text-decoration: none;
+  }
+
+  &__caption {
+    color: var(--tgui--hint_color);
+  }
+}

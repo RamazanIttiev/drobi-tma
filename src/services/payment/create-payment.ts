@@ -3,11 +3,16 @@ import axios from "axios";
 
 export const createPaymentFroApi = async (
   payload: ICreatePayment,
-): Promise<{ data: Payment } | undefined> => {
+): Promise<Payment | undefined> => {
   try {
-    return await axios.post(`${import.meta.env.VITE_API_URL}/createPayment`, {
-      payload,
-    });
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/createPayment`,
+      {
+        payload,
+      },
+    );
+
+    return response.data;
   } catch (error) {
     console.log(error);
   }

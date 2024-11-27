@@ -9,7 +9,7 @@ interface PaymentViewModel {
   fetchPaymentToken: (
     paymentData: PaymentData,
   ) => Promise<string | TokenErrorResponse>;
-  getLastDigitsFromStorage: () => Promise<string | undefined>;
+  getLastDigits: () => Promise<string | undefined>;
   setPaymentTokenToStorage: (token: string) => Promise<void>;
 }
 
@@ -41,7 +41,7 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       );
   };
 
-  const getLastDigitsFromStorage = async () => {
+  const getLastDigits = async () => {
     return getItem(["last_digits"])?.then((res) => {
       return res.last_digits === "" ? undefined : res.last_digits;
     });
@@ -53,7 +53,7 @@ export const usePaymentViewModel = (): PaymentViewModel => {
 
   return {
     fetchPaymentToken,
-    getLastDigitsFromStorage,
+    getLastDigits,
     setPaymentTokenToStorage,
   };
 };

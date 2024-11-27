@@ -9,7 +9,6 @@ import {
   Text,
 } from "@telegram-apps/telegram-ui";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePayment } from "@/context/payment-data.context.tsx";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
@@ -17,13 +16,19 @@ import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-ch
 import {
   mainButton,
   mountMainButton,
+  mountSecondaryButton,
   onMainButtonClick,
+  onSecondaryButtonClick,
   setMainButtonParams,
+  setSecondaryButtonParams,
 } from "@telegram-apps/sdk-react";
 
-import "./course-checkout.css";
 import { getPaymentPayload } from "@/ui/pages/payment/payment.model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
+
+import "./course-checkout.css";
+import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-select-modal.component.tsx";
 
 export interface CheckoutPageState {
   title: string;
@@ -35,45 +40,42 @@ export const CourseCheckoutPage = () => {
   const location = useLocation();
   const state = location.state as CheckoutPageState;
   const navigate = useNavigate();
-  const { paymentData } = usePayment();
+  const cloud = useCloudStorage();
 
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [lastDigits, setLastDigits] = useState<string | undefined>(undefined);
 
   const vm = useCourseCheckoutViewModel();
 
-  const navigateToPayment = () => {
-    navigate("/payment-details");
-  };
-
-  const getLatNumbers = () => {
-    if (!paymentData?.cardNumber) return;
-
-    return (
-      <Caption className={"checkout__cardNumber"}>
-        {`**** ${paymentData?.cardNumber.slice(-4)}`}
-      </Caption>
-    );
-  };
-
-  const successfullPayment = async (
-    response: { data: Payment } | undefined,
-  ) => {
-    if (response?.data.status === "succeeded") {
-      if (response.data.id) {
-        await vm.setPaymentMethodIdToStorage(response.data.payment_method_id);
-
-        const last4 = response.data.payment_method.card?.last4;
-        if (last4) {
-          await vm.setLastDigitsToStorage(last4);
-        }
-      }
+  const navigateToPayment = async () => {
+    if (await vm.getPaymentMethodId()) {
+      setIsModalOpen(true);
+    } else {
+      navigate("/payment-details");
     }
   };
 
+  const successfulPayment = useCallback(
+    async (response: Payment | undefined) => {
+      if (response?.status === "succeeded") {
+        if (response.id) {
+          await vm.setPaymentMethodIdToStorage(response.id);
+
+          const last4 = response.payment_method.card?.last4;
+          if (last4) {
+            await vm.setLastDigitsToStorage(last4);
+          }
+        }
+      }
+    },
+    [vm],
+  );
+
   const handleSubmit = useCallback(async () => {
     try {
-      const payment_token = await vm.getPaymentMethodIdFromStorage();
-      const payment_method_id = await vm.getPaymentTokenFromStorage();
+      const payment_token = await vm.getPaymentToken();
+      const payment_method_id = await vm.getPaymentMethodId();
 
       if (!payment_token && !payment_method_id) {
         setError("Ошибка при создании платежа. Добавьте способ оплаты");
@@ -95,24 +97,38 @@ export const CourseCheckoutPage = () => {
           return initialPayment;
         } else {
           const { payment_token, ...savedPayment } = payload;
+
           return savedPayment;
         }
       };
 
       const response = await vm.createPayment(buildPayload());
-      await successfullPayment(response);
+      await successfulPayment(response);
     } catch (error) {
       setError("Ошибка при создании платежа. Добавьте способ оплаты");
     } finally {
-      await vm.deletePaymentTokenFromStorage();
+      await vm.deletePaymentToken();
     }
-  }, [state.price, successfullPayment, vm]);
+  }, [state.price, successfulPayment, vm]);
 
   useEffect(() => {
     mountMainButton();
+    mountSecondaryButton();
     setMainButtonParams({
       isVisible: true,
       text: "Оплатить",
+    });
+
+    cloud
+      .getItem(["payment_token", "last_digits", "payment_method_id"])
+      ?.then((res) => console.log("cloud", res));
+    setSecondaryButtonParams({
+      isVisible: true,
+      text: "Delete",
+    });
+
+    onSecondaryButtonClick(async () => {
+      await vm.deletePaymentToken();
     });
 
     onMainButtonClick(handleSubmit);
@@ -123,7 +139,17 @@ export const CourseCheckoutPage = () => {
       });
       mainButton.offClick(handleSubmit);
     };
-  }, [handleSubmit, vm]);
+  }, [cloud, handleSubmit, vm]);
+
+  useEffect(() => {
+    const init = async () => {
+      if ((await vm.getPaymentMethodId()) === "") setLastDigits(undefined);
+
+      setLastDigits(await vm.getLastDigits());
+    };
+
+    init();
+  }, [vm]);
 
   return (
     <Page horizontalPaddingDisabled verticalPaddingDisabled>
@@ -164,7 +190,11 @@ export const CourseCheckoutPage = () => {
             onClick={navigateToPayment}
           >
             <Text>Оплата</Text>
-            <Text className={"checkout__hint"}>{getLatNumbers()}</Text>
+            <Text className={"checkout__hint"}>
+              <Caption
+                className={"checkout__cardNumber"}
+              >{`**** ${lastDigits}`}</Caption>
+            </Text>
           </button>
         </Section>
         {error && (
@@ -175,6 +205,10 @@ export const CourseCheckoutPage = () => {
           />
         )}
       </List>
+      <CardSelectModalComponent
+        isOpen={isModalOpen}
+        onChange={setIsModalOpen}
+      />
     </Page>
   );
 };
