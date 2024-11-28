@@ -44,6 +44,11 @@ export interface FieldErrors {
 
 export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
 
+export interface AvailablePaymentData {
+  id: string;
+  label: string;
+}
+
 const fieldErrorMapping: Record<string, string> = {
   invalid_number: "cardNumber",
   invalid_expiry_month: "expiryDate",
@@ -68,6 +73,7 @@ export const mapErrorsToFields = (
 
 export const getPaymentPayload = ({
   payment_token,
+  selectedPaymentData,
   amount,
   description,
   merchant_customer_id,
@@ -75,8 +81,9 @@ export const getPaymentPayload = ({
   payment_method_id,
 }: Omit<ICreatePayment, "amount"> & {
   amount: string;
+  selectedPaymentData?: AvailablePaymentData;
 }): ICreatePayment => {
-  return {
+  const payload: ICreatePayment = {
     payment_token,
     amount: {
       value: amount,
@@ -92,6 +99,17 @@ export const getPaymentPayload = ({
     save_payment_method,
     payment_method_id,
   };
+
+  if (payment_token && !selectedPaymentData?.id) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { payment_method_id, ...initialPayment } = payload;
+    return initialPayment;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { payment_token, ...savedPayment } = payload;
+
+    return savedPayment;
+  }
 };
 
 export const isTokenResponseSuccessful = (

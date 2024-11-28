@@ -1,57 +1,59 @@
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
 import { createPaymentFroApi } from "@/services/payment/create-payment.ts";
+import { AvailablePaymentData } from "@/ui/pages/payment/payment.model.ts";
 
 interface CourseCheckoutViewModel {
+  getPaymentData: () => Promise<AvailablePaymentData[] | undefined>;
   getPaymentToken: () => Promise<string | undefined>;
-  getPaymentMethodId: () => Promise<string | undefined>;
-  getLastDigits: () => Promise<string | undefined>;
-  setPaymentMethodIdToStorage: (
-    payment_method_id: string,
-  ) => Promise<void | undefined>;
-  setLastDigitsToStorage: (
-    payment_method_id: string,
+  getSelectedPaymentData: () => Promise<AvailablePaymentData | undefined>;
+  setPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
+  setSelectedPaymentData: (
+    data: AvailablePaymentData,
   ) => Promise<void | undefined>;
   deletePaymentToken: () => Promise<void | undefined>;
-  deletePaymentMethodId: () => Promise<void | undefined>;
   createPayment: (payload: ICreatePayment) => Promise<Payment | undefined>;
 }
 
 export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
   const { getItem, deleteItem, setItem } = useCloudStorage();
 
+  const getPaymentData = async () => {
+    return getItem(["payment_data"])?.then((res) => {
+      const paymentData = res?.payment_data as AvailablePaymentData[];
+
+      if (paymentData.length !== 0) {
+        return paymentData;
+      } else return undefined;
+    });
+  };
+
   const getPaymentToken = async () => {
     return getItem(["payment_token"])?.then((res) => {
-      return res.payment_token === "" ? undefined : res.payment_token;
+      if (typeof res?.payment_token === "string") {
+        return res?.payment_token === "" ? undefined : res?.payment_token;
+      }
     });
   };
 
-  const getPaymentMethodId = async () => {
-    return getItem(["payment_method_id"])?.then((res) => {
-      return res.payment_method_id === "" ? undefined : res.payment_method_id;
+  const getSelectedPaymentData = async () => {
+    return getItem(["selected_payment_data"])?.then((res) => {
+      if (typeof res?.selected_payment_data !== "string") {
+        return res?.selected_payment_data as AvailablePaymentData;
+      }
     });
   };
 
-  const getLastDigits = async () => {
-    return getItem(["last_digits"])?.then((res) => {
-      return res.last_digits === "" ? undefined : res.last_digits;
-    });
+  const setPaymentData = async (data: AvailablePaymentData) => {
+    return setItem("payment_data", [data]);
   };
 
-  const setPaymentMethodIdToStorage = async (value: string) => {
-    return setItem("payment_method_id", value);
-  };
-
-  const setLastDigitsToStorage = async (value: string) => {
-    return setItem("last_digits", value);
+  const setSelectedPaymentData = async (value: AvailablePaymentData) => {
+    return setItem("selected_payment_data", value);
   };
 
   const deletePaymentToken = async () => {
     return deleteItem(["payment_token"]);
-  };
-
-  const deletePaymentMethodId = async () => {
-    return deleteItem(["payment_method_id"]);
   };
 
   const createPayment = async (payload: ICreatePayment) => {
@@ -59,13 +61,12 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
   };
 
   return {
+    getPaymentData,
+    getSelectedPaymentData,
     getPaymentToken,
-    getPaymentMethodId,
-    getLastDigits,
-    setPaymentMethodIdToStorage,
-    setLastDigitsToStorage,
+    setPaymentData,
+    setSelectedPaymentData,
     deletePaymentToken,
-    deletePaymentMethodId,
     createPayment,
   };
 };

@@ -2,8 +2,8 @@ export const BASE_CURRENCY = "RUB";
 
 export type CloudStorageKeys =
   | "payment_token"
-  | "payment_method_id"
-  | "last_digits";
+  | "payment_data"
+  | "selected_payment_data";
 
 export const ngrokHeader =
   import.meta.env.MODE === "development"

@@ -12,17 +12,19 @@ import { Link } from "react-router-dom";
 import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./card-select-modal.css";
+import { AvailablePaymentData } from "@/ui/pages/payment/payment.model.ts";
 
 interface CardSelectModalComponentProps {
   isOpen: boolean;
   onChange: (value: boolean) => void;
+  options: AvailablePaymentData[] | undefined;
 }
 
 export const CardSelectModalComponent = (
   props: CardSelectModalComponentProps,
 ) => {
-  const { isOpen, onChange } = props;
-
+  const { isOpen, options, onChange } = props;
+  console.log(options);
   return (
     <Modal
       closeThreshold={0.5}
@@ -36,13 +38,17 @@ export const CardSelectModalComponent = (
         footer={"Тут отображаются сохраненные карты после совершенного платежа"}
       >
         <form>
-          <Cell
-            Component="label"
-            before={<Selectable defaultChecked name="group" value="1" />}
-            multiline
-          >
-            First radio
-          </Cell>
+          {options
+            ? options.map((option) => (
+                <Cell
+                  Component="label"
+                  before={<Selectable defaultChecked name="group" value={1} />}
+                  multiline
+                >
+                  {option.label}
+                </Cell>
+              ))
+            : null}
           <Divider />
           <Link to={"/payment-details"} className={"cardSelectModal__link"}>
             <Cell Component="label" before={<IconCard />}>

@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
 import {
   Button,
+  Cell,
   IconButton,
   Input,
   List,
   Section,
+  Switch,
 } from "@telegram-apps/telegram-ui";
 import { useNavigate } from "react-router-dom";
 import { usePayment } from "@/context/payment-data.context.tsx";
@@ -36,15 +38,21 @@ export const PaymentPage = () => {
 
   const vm = usePaymentViewModel();
 
-  const { paymentData, setPaymentData, setPaymentToken } = usePayment();
+  const {
+    paymentDetails,
+    save_payment_method,
+    setPaymentDetails,
+    setPaymentToken,
+    setSavePaymentMethod,
+  } = usePayment();
 
   const handleChange =
-    (field: keyof typeof paymentData) =>
+    (field: keyof typeof paymentDetails) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
 
-      setPaymentData({
-        ...paymentData,
+      setPaymentDetails({
+        ...paymentDetails,
         [field]: value,
       });
 
@@ -58,12 +66,12 @@ export const PaymentPage = () => {
     setIsCVCVisible((prev) => !prev);
   }, []);
 
-  const submitPaymentData = useCallback(async () => {
-    const payment_token = await vm.fetchPaymentToken(paymentData);
+  const submitPaymentDetails = useCallback(async () => {
+    const payment_token = await vm.fetchPaymentToken(paymentDetails);
 
     if (isTokenResponseSuccessful(payment_token)) {
       setPaymentToken(payment_token);
-      await vm.setPaymentTokenToStorage(payment_token);
+      await vm.setPaymentToken(payment_token);
 
       navigate(-1);
     } else {
@@ -71,7 +79,11 @@ export const PaymentPage = () => {
 
       setErrors(fieldErrors);
     }
-  }, [navigate, paymentData, setPaymentToken, vm]);
+  }, [navigate, paymentDetails, setPaymentToken, vm]);
+
+  const handleSavePaymentDetails = useCallback(() => {
+    setSavePaymentMethod(!save_payment_method);
+  }, [save_payment_method, setSavePaymentMethod]);
 
   useEffect(() => {
     mountMainButton();
@@ -82,23 +94,20 @@ export const PaymentPage = () => {
       textColor: "#ffffff",
     });
 
-    onMainButtonClick(submitPaymentData);
+    onMainButtonClick(submitPaymentDetails);
 
     return () => {
       setMainButtonParams({
         isVisible: false,
       });
-      mainButton.offClick(submitPaymentData);
+      mainButton.offClick(submitPaymentDetails);
     };
-  }, [submitPaymentData]);
+  }, [submitPaymentDetails]);
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
       <List>
-        <Section
-          header="Данные карты"
-          footer="Telegram не имеет доступа к твоей карте. Все данные передаются напрямую в YooKassa"
-        >
+        <Section header="Данные карты">
           <PatternFormat
             customInput={Input}
             className={"payment__card-number"}
@@ -110,7 +119,7 @@ export const PaymentPage = () => {
             header="Номер карты"
             after={<IconCard />}
             placeholder="1234 5678 1234 5678"
-            value={paymentData.cardNumber}
+            value={paymentDetails.cardNumber}
             onChange={handleChange("cardNumber")}
           />
 
@@ -124,7 +133,7 @@ export const PaymentPage = () => {
               autoComplete={"cc-exp"}
               header="Срок"
               placeholder="12/29"
-              value={paymentData.expiryDate}
+              value={paymentDetails.expiryDate}
               onChange={handleChange("expiryDate")}
             />
 
@@ -143,13 +152,28 @@ export const PaymentPage = () => {
                 </IconButton>
               }
               placeholder="123"
-              value={paymentData.cvc}
+              value={paymentDetails.cvc}
               onChange={handleChange("cvc")}
             />
           </div>
         </Section>
+        <Section footer="Telegram не имеет доступа к твоей карте. Все данные передаются напрямую в YooKassa">
+          <Cell
+            Component="label"
+            after={
+              <Switch
+                defaultChecked
+                onChange={handleSavePaymentDetails}
+                checked={save_payment_method}
+              />
+            }
+            multiline
+          >
+            Сохранить карту
+          </Cell>
+        </Section>
       </List>
-      <Button onClick={submitPaymentData} stretched>
+      <Button onClick={handleSavePaymentDetails} stretched>
         Сохранить
       </Button>
     </Page>

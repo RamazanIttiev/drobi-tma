@@ -10,7 +10,7 @@ interface PaymentViewModel {
     paymentData: PaymentData,
   ) => Promise<string | TokenErrorResponse>;
   getLastDigits: () => Promise<string | undefined>;
-  setPaymentTokenToStorage: (token: string) => Promise<void>;
+  setPaymentToken: (token: string) => Promise<void>;
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -47,13 +47,13 @@ export const usePaymentViewModel = (): PaymentViewModel => {
     });
   };
 
-  const setPaymentTokenToStorage = async (token: string) => {
+  const setPaymentToken = async (token: string) => {
     await setItem("payment_token", token);
   };
 
   return {
     fetchPaymentToken,
     getLastDigits,
-    setPaymentTokenToStorage,
+    setPaymentToken,
   };
 };
