@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Page } from "@/ui/organisms/page/page.tsx";
 import {
@@ -16,11 +16,8 @@ import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-ch
 import {
   mainButton,
   mountMainButton,
-  mountSecondaryButton,
   onMainButtonClick,
-  onSecondaryButtonClick,
   setMainButtonParams,
-  setSecondaryButtonParams,
 } from "@telegram-apps/sdk-react";
 
 import {
@@ -29,11 +26,10 @@ import {
 } from "@/ui/pages/payment/payment.model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
 
-import "./course-checkout.css";
 import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-select-modal.component.tsx";
 import { usePayment } from "@/context/payment-data.context.tsx";
-import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
-import { CloudStorageKeys } from "@/common/models.ts";
+
+import "./course-checkout.css";
 
 export interface CheckoutPageState {
   title: string;
@@ -41,12 +37,11 @@ export interface CheckoutPageState {
   config: CourseConfig;
 }
 
-export const CourseCheckoutPage = () => {
+export const CourseCheckoutPage = memo(() => {
   const location = useLocation();
   const state = location.state as CheckoutPageState;
   const navigate = useNavigate();
   const { save_payment_method } = usePayment();
-  const { getItem, getKeys, deleteItem } = useCloudStorage();
 
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -131,36 +126,20 @@ export const CourseCheckoutPage = () => {
       text: "Оплатить",
     });
 
-    onMainButtonClick(handleSubmit);
-
     return () => {
       setMainButtonParams({
         isVisible: false,
       });
+    };
+  }, []);
+
+  useEffect(() => {
+    onMainButtonClick(handleSubmit);
+
+    return () => {
       mainButton.offClick(handleSubmit);
     };
   }, [handleSubmit]);
-
-  useEffect(() => {
-    mountSecondaryButton();
-    setSecondaryButtonParams({
-      isVisible: true,
-      text: "Cloud",
-    });
-
-    onSecondaryButtonClick(
-      async () =>
-        await getKeys()?.then(async (res) => {
-          await getItem(res).then((items) => {
-            if (items) {
-              Object.keys(items).forEach((key) => {
-                deleteItem(key as CloudStorageKeys);
-              });
-            }
-          });
-        }),
-    );
-  }, [deleteItem, getItem, getKeys]);
 
   useEffect(() => {
     const fetchPaymentData = async () => {
@@ -168,25 +147,17 @@ export const CourseCheckoutPage = () => {
       setAvailablePaymentData(data);
     };
 
-    fetchPaymentData();
+    fetchPaymentData().catch(console.error);
   }, []);
 
   useEffect(() => {
-    const fetchPaymentData = async () => {
+    const fetchSelectedPaymentData = async () => {
       const data = await vm.getSelectedPaymentData();
       setSelectedPaymentData(data);
     };
 
-    fetchPaymentData();
+    fetchSelectedPaymentData().catch(console.error);
   }, []);
-
-  useEffect(() => {
-    getKeys()?.then((res) => {
-      getItem(res).then((items) => {
-        console.log("cloud", items);
-      });
-    });
-  }, [getItem, getKeys]);
 
   return (
     <Page horizontalPaddingDisabled verticalPaddingDisabled>
@@ -249,4 +220,4 @@ export const CourseCheckoutPage = () => {
       />
     </Page>
   );
-};
+});

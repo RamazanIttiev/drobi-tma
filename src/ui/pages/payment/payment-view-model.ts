@@ -9,7 +9,6 @@ interface PaymentViewModel {
   fetchPaymentToken: (
     paymentData: PaymentData,
   ) => Promise<string | TokenErrorResponse>;
-  getLastDigits: () => Promise<string | undefined>;
   setPaymentToken: (token: string) => Promise<void>;
 }
 
@@ -21,7 +20,7 @@ const checkoutYooKassa = window.YooMoneyCheckout(
 );
 
 export const usePaymentViewModel = (): PaymentViewModel => {
-  const { getItem, setItem } = useCloudStorage();
+  const { setItem } = useCloudStorage();
 
   const fetchPaymentToken = async (
     paymentData: PaymentData,
@@ -41,19 +40,12 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       );
   };
 
-  const getLastDigits = async () => {
-    return getItem(["last_digits"])?.then((res) => {
-      return res.last_digits === "" ? undefined : res.last_digits;
-    });
-  };
-
   const setPaymentToken = async (token: string) => {
     await setItem("payment_token", token);
   };
 
   return {
     fetchPaymentToken,
-    getLastDigits,
     setPaymentToken,
   };
 };

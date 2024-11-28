@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
 import {
-  Button,
   Cell,
   IconButton,
   Input,
@@ -31,7 +30,7 @@ import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
 
-export const PaymentPage = () => {
+export const PaymentPage = memo(() => {
   const navigate = useNavigate();
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -94,12 +93,17 @@ export const PaymentPage = () => {
       textColor: "#ffffff",
     });
 
-    onMainButtonClick(submitPaymentDetails);
-
     return () => {
       setMainButtonParams({
         isVisible: false,
       });
+    };
+  }, []);
+
+  useEffect(() => {
+    onMainButtonClick(submitPaymentDetails);
+
+    return () => {
       mainButton.offClick(submitPaymentDetails);
     };
   }, [submitPaymentDetails]);
@@ -173,9 +177,6 @@ export const PaymentPage = () => {
           </Cell>
         </Section>
       </List>
-      <Button onClick={handleSavePaymentDetails} stretched>
-        Сохранить
-      </Button>
     </Page>
   );
-};
+});
