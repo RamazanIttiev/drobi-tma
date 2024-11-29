@@ -6,6 +6,7 @@ import {
   mountMainButton,
   onMainButtonClick,
   setMainButtonParams,
+  useLaunchParams,
 } from "@telegram-apps/sdk-react";
 import {
   calculatePrice,
@@ -21,15 +22,7 @@ import {
   types,
 } from "@/ui/pages/course/course.model.ts";
 import { Image } from "@telegram-apps/telegram-ui/dist/components/Blocks/Image/Image";
-import {
-  Button,
-  Caption,
-  LargeTitle,
-  List,
-  Section,
-} from "@telegram-apps/telegram-ui";
-
-import { Paper } from "@/ui/atoms/paper/paper.tsx";
+import { Caption, LargeTitle, List, Section } from "@telegram-apps/telegram-ui";
 import { Select } from "@/ui/atoms/select/select.tsx";
 
 import "./course.css";
@@ -37,6 +30,7 @@ import "./course.css";
 export const CoursePage = () => {
   const course = useLoaderData() as Course;
   const navigate = useNavigate();
+  const { themeParams } = useLaunchParams();
 
   const [config, setConfig] = useState<CourseConfig>({
     selectedLevel: "5-8 класс",
@@ -73,31 +67,6 @@ export const CoursePage = () => {
     selectedDuration,
   );
 
-  // Native Telegram invoice window
-
-  // const payload: InvoiceBody = getInvoicePayload(
-  //   config,
-  //   course.title,
-  //   price,
-  //   import.meta.env.VITE_PROVIDER_TOKEN,
-  // );
-
-  // const createInvoice = useCallback(async () => {
-  //   await createInvoiceLink(payload)
-  //     .then((url) => {
-  //       if (url) {
-  //         invoice?.open(url, "url").then((status) => {
-  //           setPaymentStatus(status);
-  //
-  //           if (status === "paid") navigate("/");
-  //         });
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // }, [navigate, payload]);
-
   const navigateToCheckout = useCallback(() => {
     navigate(`/checkout/${course.id}`, {
       state: {
@@ -111,24 +80,23 @@ export const CoursePage = () => {
   useEffect(() => {
     mountMainButton();
     setMainButtonParams({
-      backgroundColor: "#000000",
+      backgroundColor: themeParams?.buttonColor,
       isVisible: true,
       text: `К оплате ${price.toString()} ₽`,
-      textColor: "#ffffff",
     });
-
-    onMainButtonClick(navigateToCheckout);
-
-    // Native Telegram invoice window
-    // if (paymentStatus === "canceled") mainButton.offClick(navigateToCheckout);
 
     return () => {
       setMainButtonParams({
         isVisible: false,
       });
-      mainButton.offClick(navigateToCheckout);
     };
-  }, [course.id, navigateToCheckout, price]);
+  }, [course.id, navigateToCheckout, price, themeParams?.buttonColor]);
+
+  useEffect(() => {
+    onMainButtonClick(navigateToCheckout);
+
+    return () => mainButton.offClick(navigateToCheckout);
+  }, [navigateToCheckout]);
 
   const onLevelChange = (value: CourseLevel) => {
     setConfig((prevState) => ({
@@ -167,67 +135,62 @@ export const CoursePage = () => {
           {course.description}
         </Caption>
       </div>
-      <Paper className={"course__paper"}>
-        <List className={"course__list"}>
-          <form>
-            <Section className={"course__section"}>
-              <Select
-                label={"Выберите уровень"}
-                value={selectedLevel}
-                onChange={onLevelChange}
-              >
-                {levels.map((level) => (
-                  <option key={level}>{level}</option>
-                ))}
-              </Select>
-              <Select
-                label={"Количество занятий"}
-                value={selectedQuantity}
-                onChange={onQuantityChange}
-              >
-                {quantity.map((count) => (
-                  <option key={count}>{count}</option>
-                ))}
-              </Select>
-              <Select
-                label={"Тип занятия"}
-                value={selectedType}
-                onChange={onTypeChange}
-              >
-                {types.map((type) => {
-                  return (
-                    <option
-                      disabled={type === "В группе" && selectedQuantity === "1"}
-                      key={type}
-                    >
-                      {type}
-                    </option>
-                  );
-                })}
-              </Select>
-              <Select
-                label={"Длительность"}
-                value={selectedDuration}
-                onChange={onDurationChange}
-              >
-                {durations.map((duration) => (
+      <List className={"course__list"}>
+        <form>
+          <Section className={"course__section"}>
+            <Select
+              label={"Выберите уровень"}
+              value={selectedLevel}
+              onChange={onLevelChange}
+            >
+              {levels.map((level) => (
+                <option key={level}>{level}</option>
+              ))}
+            </Select>
+            <Select
+              label={"Количество занятий"}
+              value={selectedQuantity}
+              onChange={onQuantityChange}
+            >
+              {quantity.map((count) => (
+                <option key={count}>{count}</option>
+              ))}
+            </Select>
+            <Select
+              label={"Тип занятия"}
+              value={selectedType}
+              onChange={onTypeChange}
+            >
+              {types.map((type) => {
+                return (
                   <option
-                    disabled={
-                      duration === "60 минут" && selectedType === "В группе"
-                    }
-                    key={duration}
+                    disabled={type === "В группе" && selectedQuantity === "1"}
+                    key={type}
                   >
-                    {duration}
+                    {type}
                   </option>
-                ))}
-              </Select>
-            </Section>
-          </form>
-        </List>
-        <Button onClick={navigateToCheckout} stretched>
-          Pay
-        </Button>
-      </Paper>
+                );
+              })}
+            </Select>
+            <Select
+              label={"Длительность"}
+              value={selectedDuration}
+              onChange={onDurationChange}
+            >
+              {durations.map((duration) => (
+                <option
+                  disabled={
+                    duration === "60 минут" && selectedType === "В группе"
+                  }
+                  key={duration}
+                >
+                  {duration}
+                </option>
+              ))}
+            </Select>
+          </Section>
+        </form>
+      </List>
     </Page>
   );
 };

@@ -9,7 +9,7 @@ import "./home.css";
 
 export const HomePage = () => {
   const courses = useLoaderData() as Course[];
-  console.log(courses);
+
   return (
     <Page back={false}>
       <div className="home">

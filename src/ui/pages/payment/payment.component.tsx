@@ -17,6 +17,7 @@ import {
   mountMainButton,
   onMainButtonClick,
   setMainButtonParams,
+  useLaunchParams,
 } from "@telegram-apps/sdk-react";
 import {
   AvailablePaymentData,
@@ -37,6 +38,7 @@ import "./payment.css";
 
 export const PaymentPage = memo(() => {
   const location = useLocation();
+  const { themeParams } = useLaunchParams();
 
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -136,10 +138,9 @@ export const PaymentPage = memo(() => {
   useEffect(() => {
     mountMainButton();
     setMainButtonParams({
-      backgroundColor: "#000000",
+      backgroundColor: themeParams?.buttonColor,
       isVisible: true,
-      text: `Сохранить`,
-      textColor: "#ffffff",
+      text: `Оплатить`,
     });
 
     return () => {
@@ -147,7 +148,7 @@ export const PaymentPage = memo(() => {
         isVisible: false,
       });
     };
-  }, []);
+  }, [themeParams?.buttonColor]);
 
   useEffect(() => {
     onMainButtonClick(handleSubmit);
