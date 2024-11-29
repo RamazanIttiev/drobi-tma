@@ -46,7 +46,9 @@ export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
 
 export interface AvailablePaymentData {
   id: string;
-  label: string;
+  last4: string;
+  first6: string;
+  type: string;
 }
 
 const fieldErrorMapping: Record<string, string> = {

@@ -1,13 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Page } from "@/ui/organisms/page/page.tsx";
-import {
-  Caption,
-  List,
-  Section,
-  Snackbar,
-  Text,
-} from "@telegram-apps/telegram-ui";
+import { Caption, List, Section, Text } from "@telegram-apps/telegram-ui";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
@@ -16,20 +10,23 @@ import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-ch
 import {
   mainButton,
   mountMainButton,
+  mountSecondaryButton,
   onMainButtonClick,
+  onSecondaryButtonClick,
   setMainButtonParams,
+  setSecondaryButtonParams,
 } from "@telegram-apps/sdk-react";
 
 import {
   AvailablePaymentData,
   getPaymentPayload,
 } from "@/ui/pages/payment/payment.model.ts";
-import { Payment } from "@a2seven/yoo-checkout";
 
 import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-select-modal.component.tsx";
-import { usePayment } from "@/context/payment-data.context.tsx";
 
 import "./course-checkout.css";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
+import { CloudStorageKeys } from "@/common/models.ts";
 
 export interface CheckoutPageState {
   title: string;
@@ -41,89 +38,69 @@ export const CourseCheckoutPage = memo(() => {
   const location = useLocation();
   const state = location.state as CheckoutPageState;
   const navigate = useNavigate();
-  const { save_payment_method } = usePayment();
 
-  const [error, setError] = useState<string | null>(null);
+  const { getKeys, getItem, deleteItem } = useCloudStorage();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availablePaymentData, setAvailablePaymentData] = useState<
     AvailablePaymentData[] | undefined
   >(undefined);
   const [selectedPaymentData, setSelectedPaymentData] = useState<
     AvailablePaymentData | undefined
-  >(undefined);
+  >();
 
-  const rawVm = useCourseCheckoutViewModel();
-  const vm = useMemo(() => rawVm, [rawVm]);
+  const vm = useCourseCheckoutViewModel();
 
-  const navigateToPayment = async () => {
-    if (availablePaymentData) {
-      setIsModalOpen(true);
-    } else {
-      navigate("/payment-details");
+  const navigateToPayment = useCallback(() => {
+    navigate("/payment-details", {
+      state,
+    });
+  }, [navigate, state]);
+
+  const paymentDataLabel = useMemo(() => {
+    if (selectedPaymentData) {
+      return `**** ${selectedPaymentData.last4}`;
     }
-  };
+  }, [selectedPaymentData]);
 
-  const successfulPayment = useCallback(
-    async (response: Payment | undefined) => {
-      if (response?.status === "succeeded") {
-        const lastDigits = response.payment_method.card?.last4;
-
-        if (lastDigits) {
-          const paymentData = {
-            id: response.id,
-            label: lastDigits,
-          };
-
-          await vm.setPaymentData(paymentData);
-          await vm.setSelectedPaymentData(paymentData);
-        }
-      }
-    },
-    [vm],
+  const mainButtonText = useMemo(
+    () => (selectedPaymentData ? "Оплатить" : "К оплате"),
+    [selectedPaymentData],
   );
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      const payment_token = await vm.getPaymentToken();
-      const selectedPaymentData = await vm.getSelectedPaymentData();
-
-      if (!payment_token && !selectedPaymentData) {
-        setError("Ошибка при создании платежа. Добавьте способ оплаты");
-        return;
-      }
+  const handleMainButtonClick = useCallback(async () => {
+    if (availablePaymentData) {
+      setIsModalOpen(false);
 
       const payload = getPaymentPayload({
-        payment_token,
         payment_method_id: selectedPaymentData?.id,
-        description: "",
-        amount: state.price.toString(),
         merchant_customer_id: "",
-        save_payment_method,
+        description: state.title,
+        amount: state.price.toString(),
       });
 
       const response = await vm.createPayment(payload);
-      await successfulPayment(response);
-    } catch (error: unknown) {
-      console.log(error);
-      setError("Ошибка при создании платежа. Добавьте способ оплаты");
-    } finally {
-      await vm.deletePaymentToken();
-    }
-  }, [save_payment_method, state.price, successfulPayment, vm]);
 
-  const paymentDataLabel = useMemo(
-    () =>
-      selectedPaymentData
-        ? `**** ${selectedPaymentData?.label}`
-        : "Добавить карту",
-    [selectedPaymentData],
-  );
+      if (response?.status === "succeeded") {
+        console.log("Payment succeeded");
+      }
+    } else {
+      navigateToPayment();
+    }
+  }, [
+    availablePaymentData,
+    navigateToPayment,
+    selectedPaymentData?.id,
+    state.price,
+    state.title,
+    vm,
+  ]);
 
   useEffect(() => {
     mountMainButton();
     setMainButtonParams({
       isVisible: true,
-      text: "Оплатить",
+      text: mainButtonText,
     });
 
     return () => {
@@ -131,32 +108,53 @@ export const CourseCheckoutPage = memo(() => {
         isVisible: false,
       });
     };
-  }, []);
+  }, [mainButtonText]);
 
   useEffect(() => {
-    onMainButtonClick(handleSubmit);
+    onMainButtonClick(handleMainButtonClick);
 
     return () => {
-      mainButton.offClick(handleSubmit);
+      mainButton.offClick(handleMainButtonClick);
     };
-  }, [handleSubmit]);
+  }, [handleMainButtonClick]);
+
+  useEffect(() => {
+    mountSecondaryButton();
+    setSecondaryButtonParams({
+      isVisible: true,
+      text: "Cloud",
+    });
+
+    onSecondaryButtonClick(
+      async () =>
+        await getKeys()?.then(async (res) => {
+          await getItem(res).then((items) => {
+            if (items) {
+              Object.keys(items).forEach((key) => {
+                deleteItem(key as CloudStorageKeys);
+              });
+            }
+          });
+        }),
+    );
+  }, [deleteItem, getItem, getKeys]);
+
+  useEffect(() => {
+    getKeys()?.then((res) => {
+      getItem(res).then((items) => {
+        console.log("cloud", items);
+      });
+    });
+  }, [getItem, getKeys]);
 
   useEffect(() => {
     const fetchPaymentData = async () => {
       const data = await vm.getPaymentData();
       setAvailablePaymentData(data);
+      setSelectedPaymentData(data?.[0]);
     };
 
     fetchPaymentData().catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    const fetchSelectedPaymentData = async () => {
-      const data = await vm.getSelectedPaymentData();
-      setSelectedPaymentData(data);
-    };
-
-    fetchSelectedPaymentData().catch(console.error);
   }, []);
 
   return (
@@ -192,31 +190,29 @@ export const CourseCheckoutPage = memo(() => {
           </div>
         </Section>
 
-        <Section>
-          <button
-            className={"checkout__cell checkout__cell_button"}
-            onClick={navigateToPayment}
-          >
-            <Text>Оплата</Text>
-            <Text className={"checkout__hint"}>
-              <Caption className={"checkout__cardNumber"}>
-                {paymentDataLabel}
-              </Caption>
-            </Text>
-          </button>
-        </Section>
-        {error && (
-          <Snackbar
-            children={error}
-            duration={5000}
-            onClose={() => setError(null)}
-          />
+        {availablePaymentData && (
+          <Section>
+            <button
+              className={"checkout__cell checkout__cell_button"}
+              onClick={() => setIsModalOpen(true)}
+            >
+              <Text>Оплата</Text>
+              <Text className={"checkout__hint"}>
+                <Caption className={"checkout__cardNumber"}>
+                  {paymentDataLabel}
+                </Caption>
+              </Text>
+            </button>
+          </Section>
         )}
       </List>
       <CardSelectModalComponent
+        state={state}
         isOpen={isModalOpen}
         onChange={setIsModalOpen}
         options={availablePaymentData}
+        selectedOption={selectedPaymentData}
+        onOptionSelect={setSelectedPaymentData}
       />
     </Page>
   );

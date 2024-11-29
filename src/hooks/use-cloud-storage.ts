@@ -12,20 +12,20 @@ interface CloudStorage {
   setItem: (
     key: CloudStorageKeys,
     value: string | object | object[],
-  ) => CancelablePromise<void> | undefined;
+  ) => Promise<void> | undefined;
+  addItem: (
+    key: CloudStorageKeys,
+    value: string | object | object[],
+  ) => Promise<void> | undefined;
   getItem: (
     keys: CloudStorageKeys[],
   ) => Promise<
     Record<CloudStorageKeys, string | object | object[]> | undefined
   >;
-  getKeys: () => CancelablePromise<CloudStorageKeys[]> | undefined;
-  editItem: (
-    key: CloudStorageKeys,
-    modifyFn: (value: string | object | object[]) => string | object | object[],
-  ) => Promise<void>;
+  getKeys: () => Promise<CloudStorageKeys[]> | undefined;
   deleteItem: (
     key: CloudStorageKeys | CloudStorageKeys[],
-  ) => CancelablePromise<void> | undefined;
+  ) => Promise<void> | undefined;
 }
 
 export const useCloudStorage = (): CloudStorage => {
@@ -42,6 +42,64 @@ export const useCloudStorage = (): CloudStorage => {
         typeof value === "string" ? value : JSON.stringify(value);
 
       return setCloudStorageItem(key, serializedValue);
+    }
+  };
+
+  const addItem = async (
+    key: CloudStorageKeys,
+    value: string | object | object[],
+  ) => {
+    if (
+      setCloudStorageItem.isSupported() &&
+      getCloudStorageItem.isSupported()
+    ) {
+      try {
+        // Retrieve the current value
+        const currentData = await getCloudStorageItem([key]);
+
+        let updatedValue;
+
+        if (currentData && currentData[key]) {
+          try {
+            const parsedData = JSON.parse(currentData[key]);
+
+            if (Array.isArray(parsedData)) {
+              // Append the new value directly if it's an object, or spread if it's an array
+              if (Array.isArray(value)) {
+                updatedValue = [...parsedData, ...value];
+              } else {
+                updatedValue = [...parsedData, value];
+              }
+            } else if (typeof parsedData === "object") {
+              // Merge with existing object
+              if (typeof value === "object" && !Array.isArray(value)) {
+                updatedValue = { ...parsedData, ...value };
+              } else {
+                throw new Error("Cannot merge non-object value with an object");
+              }
+            } else {
+              // Overwrite non-object, non-array values
+              updatedValue = value;
+            }
+          } catch {
+            // If parsing fails, treat as a string and overwrite
+            updatedValue = value;
+          }
+        } else {
+          // If no existing data, set the value directly
+          updatedValue = value;
+        }
+
+        // Serialize and store the updated value
+        const serializedValue =
+          typeof updatedValue === "string"
+            ? updatedValue
+            : JSON.stringify(updatedValue);
+
+        return setCloudStorageItem(key, serializedValue);
+      } catch (error) {
+        console.error("Failed to set item in cloud storage:", error);
+      }
     }
   };
 
@@ -78,44 +136,6 @@ export const useCloudStorage = (): CloudStorage => {
     }
   };
 
-  const editItem = async (
-    key: CloudStorageKeys,
-    modifyFn: (value: object | string) => object | string,
-  ) => {
-    if (
-      getCloudStorageItem.isSupported() &&
-      setCloudStorageItem.isSupported()
-    ) {
-      try {
-        // Retrieve the existing item
-        const existingData = await getItem([key]);
-        const value = existingData?.[key];
-        console.log(existingData, value);
-        // Check if the item exists
-        if (existingData && value) {
-          let currentValue: string | object | object[];
-
-          if (typeof value !== "string") {
-            currentValue = value;
-          } else {
-            currentValue = JSON.parse(value);
-          }
-
-          // Modify the value using the provided function
-          const updatedValue = modifyFn(currentValue);
-
-          // Save the updated value back to the cloud storage
-          return setItem(key, JSON.stringify(updatedValue)); // Always store as JSON
-        } else {
-          throw new Error(`Key "${key}" does not exist in cloud storage`);
-        }
-      } catch (error) {
-        console.error("Error editing cloud storage item:", error);
-        throw error;
-      }
-    }
-  };
-
   const deleteItem = (key: string | string[]) => {
     if (deleteCloudStorageItem.isSupported()) {
       return deleteCloudStorageItem(key);
@@ -124,9 +144,9 @@ export const useCloudStorage = (): CloudStorage => {
 
   return {
     setItem,
+    addItem,
     getItem,
     getKeys,
-    editItem,
     deleteItem,
   };
 };

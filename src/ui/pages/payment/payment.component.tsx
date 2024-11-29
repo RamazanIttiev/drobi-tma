@@ -6,9 +6,10 @@ import {
   Input,
   List,
   Section,
+  Snackbar,
   Switch,
 } from "@telegram-apps/telegram-ui";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { usePayment } from "@/context/payment-data.context.tsx";
 import { PatternFormat } from "react-number-format";
 import {
@@ -18,11 +19,15 @@ import {
   setMainButtonParams,
 } from "@telegram-apps/sdk-react";
 import {
+  AvailablePaymentData,
   FieldErrors,
+  getPaymentPayload,
   isTokenResponseSuccessful,
   mapErrorsToFields,
 } from "@/ui/pages/payment/payment.model.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
+import { Payment } from "@a2seven/yoo-checkout";
+import { CheckoutPageState } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
@@ -31,17 +36,19 @@ import IconCard from "@/assets/icons/card-icon.svg";
 import "./payment.css";
 
 export const PaymentPage = memo(() => {
-  const navigate = useNavigate();
+  const location = useLocation();
+
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   const vm = usePaymentViewModel();
+  const state = location.state as CheckoutPageState;
 
   const {
     paymentDetails,
     save_payment_method,
     setPaymentDetails,
-    setPaymentToken,
     setSavePaymentMethod,
   } = usePayment();
 
@@ -65,20 +72,62 @@ export const PaymentPage = memo(() => {
     setIsCVCVisible((prev) => !prev);
   }, []);
 
-  const submitPaymentDetails = useCallback(async () => {
-    const payment_token = await vm.fetchPaymentToken(paymentDetails);
+  const successfulPayment = useCallback(
+    async (response: Payment | undefined) => {
+      if (response?.status === "succeeded") {
+        const last4 = response.payment_method.card?.last4;
+        const first6 = response.payment_method.card?.first6;
+        const type = response.payment_method.card?.card_type;
 
-    if (isTokenResponseSuccessful(payment_token)) {
-      setPaymentToken(payment_token);
-      await vm.setPaymentToken(payment_token);
+        if (last4 && first6 && type) {
+          const paymentData: AvailablePaymentData = {
+            id: response.id,
+            last4,
+            first6,
+            type,
+          };
 
-      navigate(-1);
-    } else {
-      const fieldErrors = mapErrorsToFields(payment_token);
+          await vm.addPaymentData(paymentData);
+        }
+      }
+    },
+    [vm],
+  );
 
-      setErrors(fieldErrors);
+  const handleSubmit = useCallback(async () => {
+    try {
+      const payment_token = await vm.createPaymentToken(paymentDetails);
+
+      if (!isTokenResponseSuccessful(payment_token)) {
+        const fieldErrors = mapErrorsToFields(payment_token);
+
+        setTokenError("Ошибка при создании платежа. Проверьте данные карты");
+        setErrors(fieldErrors);
+        return;
+      }
+
+      const payload = getPaymentPayload({
+        payment_token,
+        merchant_customer_id: "",
+        save_payment_method,
+        description: state.title,
+        amount: state.price.toString(),
+      });
+
+      const response = await vm.createPayment(payload);
+      await successfulPayment(response);
+    } catch (error: unknown) {
+      console.log(error);
+      setTokenError("Ошибка при создании платежа. Проверьте данные карты");
     }
-  }, [navigate, paymentDetails, setPaymentToken, vm]);
+  }, [
+    paymentDetails,
+    save_payment_method,
+    state.price,
+    state.title,
+    successfulPayment,
+    vm,
+  ]);
 
   const handleSavePaymentDetails = useCallback(() => {
     setSavePaymentMethod(!save_payment_method);
@@ -101,12 +150,12 @@ export const PaymentPage = memo(() => {
   }, []);
 
   useEffect(() => {
-    onMainButtonClick(submitPaymentDetails);
+    onMainButtonClick(handleSubmit);
 
     return () => {
-      mainButton.offClick(submitPaymentDetails);
+      mainButton.offClick(handleSubmit);
     };
-  }, [submitPaymentDetails]);
+  }, [handleSubmit]);
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
@@ -151,7 +200,7 @@ export const PaymentPage = memo(() => {
               autoComplete={"off"}
               header="cvc"
               after={
-                <IconButton onClick={handleTogglePassword}>
+                <IconButton size={"s"} onClick={handleTogglePassword}>
                   {isCVCVisible ? <IconEyeOpened /> : <IconEyeClosed />}
                 </IconButton>
               }
@@ -177,6 +226,13 @@ export const PaymentPage = memo(() => {
           </Cell>
         </Section>
       </List>
+      {tokenError && (
+        <Snackbar
+          children={tokenError}
+          duration={5000}
+          onClose={() => setTokenError(null)}
+        />
+      )}
     </Page>
   );
 });

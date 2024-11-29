@@ -3,23 +3,21 @@ import { PaymentData } from "@/ui/pages/payment/payment.model.ts";
 
 interface PaymentContextType {
   paymentDetails: PaymentData;
-  payment_token: string | undefined;
   save_payment_method: boolean;
   setPaymentDetails: (data: PaymentData) => void;
-  setPaymentToken: (token: string) => void;
   setSavePaymentMethod: (value: boolean) => void;
 }
 
+export const initialPaymentDetails = {
+  cardNumber: "",
+  expiryDate: "",
+  cvc: "",
+};
+
 const PaymentContext = createContext<PaymentContextType>({
-  paymentDetails: {
-    cardNumber: "",
-    expiryDate: "",
-    cvc: "",
-  },
+  paymentDetails: initialPaymentDetails,
   save_payment_method: true,
-  payment_token: undefined,
   setPaymentDetails: () => {},
-  setPaymentToken: () => {},
   setSavePaymentMethod: () => {},
 });
 
@@ -28,14 +26,8 @@ export const PaymentProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [paymentDetails, setPaymentDetails] = useState<PaymentData>({
-    cardNumber: "",
-    expiryDate: "",
-    cvc: "",
-  });
-
-  const [payment_token, setPaymentToken] = useState<string | undefined>(
-    undefined,
+  const [paymentDetails, setPaymentDetails] = useState<PaymentData>(
+    initialPaymentDetails,
   );
 
   const [save_payment_method, setSavePaymentMethod] = useState<boolean>(true);
@@ -44,10 +36,8 @@ export const PaymentProvider = ({
     <PaymentContext.Provider
       value={{
         paymentDetails,
-        payment_token,
         save_payment_method,
         setPaymentDetails,
-        setPaymentToken,
         setSavePaymentMethod,
       }}
     >

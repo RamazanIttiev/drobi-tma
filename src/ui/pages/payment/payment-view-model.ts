@@ -1,15 +1,20 @@
 import {
+  AvailablePaymentData,
   PaymentData,
   TokenErrorResponse,
   TokenResponse,
 } from "@/ui/pages/payment/payment.model.ts";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
+import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
+import { createPaymentFroApi } from "@/services/payment/create-payment.ts";
 
 interface PaymentViewModel {
-  fetchPaymentToken: (
+  setPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
+  addPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
+  createPaymentToken: (
     paymentData: PaymentData,
   ) => Promise<string | TokenErrorResponse>;
-  setPaymentToken: (token: string) => Promise<void>;
+  createPayment: (payload: ICreatePayment) => Promise<Payment | undefined>;
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -20,9 +25,9 @@ const checkoutYooKassa = window.YooMoneyCheckout(
 );
 
 export const usePaymentViewModel = (): PaymentViewModel => {
-  const { setItem } = useCloudStorage();
+  const { setItem, addItem } = useCloudStorage();
 
-  const fetchPaymentToken = async (
+  const createPaymentToken = async (
     paymentData: PaymentData,
   ): Promise<string | TokenErrorResponse> => {
     const expMonth = paymentData?.expiryDate?.slice(0, 2);
@@ -40,12 +45,22 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       );
   };
 
-  const setPaymentToken = async (token: string) => {
-    await setItem("payment_token", token);
+  const setPaymentData = async (data: AvailablePaymentData) => {
+    return setItem("payment_data", [data]);
+  };
+
+  const addPaymentData = async (data: AvailablePaymentData) => {
+    return addItem("payment_data", [data]);
+  };
+
+  const createPayment = async (payload: ICreatePayment) => {
+    return await createPaymentFroApi(payload);
   };
 
   return {
-    fetchPaymentToken,
-    setPaymentToken,
+    setPaymentData,
+    addPaymentData,
+    createPayment,
+    createPaymentToken,
   };
 };
