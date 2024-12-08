@@ -12,7 +12,6 @@ export const HomePage = () => {
 
   return (
     <Page back={false}>
-      <Link to={"/payment-status"}>Success</Link>
       <div className="home">
         {courses.map(({ id, title, image }) => (
           <Link to={`subject/${id}`} state={id} key={id}>

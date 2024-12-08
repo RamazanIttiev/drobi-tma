@@ -49,7 +49,7 @@ export const PaymentStatusComponent = (props: PaymentStatusComponentProps) => {
     }
   };
   return (
-    <Page fixed className={"payment-status"}>
+    <Page fixed back={false} className={"payment-status"}>
       {getContent()}
     </Page>
   );

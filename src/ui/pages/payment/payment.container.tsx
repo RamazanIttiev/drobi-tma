@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from "react";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePayment } from "@/context/payment-data.context.tsx";
 import { setMainButtonParams } from "@telegram-apps/sdk-react";
 import {
@@ -20,6 +20,7 @@ import { PaymentComponent } from "@/ui/pages/payment/payment.component.tsx";
 
 export const PaymentPage = memo(() => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -81,6 +82,7 @@ export const PaymentPage = memo(() => {
     async (response: Payment | undefined) => {
       if (response?.status === "succeeded") {
         await setPaymentData(response);
+        navigate("/payment-status", { state: { status: "succeeded" } });
       }
 
       if (response?.status === "pending") {
@@ -97,7 +99,7 @@ export const PaymentPage = memo(() => {
         }
       }
     },
-    [setPaymentData, vm],
+    [navigate, setPaymentData, vm],
   );
 
   const handleSubmit = useCallback(async () => {

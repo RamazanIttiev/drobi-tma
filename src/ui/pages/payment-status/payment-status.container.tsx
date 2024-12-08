@@ -1,15 +1,22 @@
 import { useCallback, useEffect, useState } from "react";
 import { AvailablePaymentData } from "@/ui/pages/payment/payment.model.ts";
-import { Payment } from "@a2seven/yoo-checkout";
+import { IPaymentStatus, Payment } from "@a2seven/yoo-checkout";
 import { PaymentStatusComponent } from "@/ui/pages/payment-status/payment-status.component.tsx";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 
 import "./payment-status.css";
 
+interface PaymentStatusPageState {
+  status: IPaymentStatus;
+}
+
 export const PaymentStatusPage = () => {
+  const location = useLocation();
+  const state = location.state as PaymentStatusPageState;
+
   const vm = usePaymentViewModel();
   const navigate = useNavigate();
 
@@ -63,5 +70,5 @@ export const PaymentStatusPage = () => {
 
   useMainButton({ onClick: () => navigate("/"), text: "Домой" });
 
-  return <PaymentStatusComponent status={payment?.status} />;
+  return <PaymentStatusComponent status={state.status ?? payment?.status} />;
 };
