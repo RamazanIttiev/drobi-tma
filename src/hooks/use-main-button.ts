@@ -14,18 +14,29 @@ interface Props extends Partial<MainButtonState> {
 }
 
 export const useMainButton = (props: Props) => {
-  const { onClick, isLoading } = props;
+  const {
+    onClick,
+    text,
+    isLoading,
+    backgroundColor,
+    textColor,
+    hasShineEffect,
+    isEnabled,
+    isVisible,
+    isLoaderVisible,
+  } = props;
   const { themeParams } = useLaunchParams();
 
   useEffect(() => {
     mountMainButton();
     setMainButtonParams({
-      ...props,
-      isVisible: true,
-      isEnabled: !isLoading,
-      isLoaderVisible: isLoading,
-      backgroundColor: themeParams?.buttonColor,
-      hasShineEffect: true,
+      text,
+      isVisible: isVisible ?? true,
+      hasShineEffect: hasShineEffect ?? true,
+      isEnabled: isEnabled ?? !isLoading,
+      isLoaderVisible: isLoaderVisible ?? isLoading,
+      backgroundColor: backgroundColor ?? themeParams?.buttonColor,
+      textColor: textColor ?? themeParams?.buttonTextColor,
     });
 
     return () => {
@@ -33,7 +44,18 @@ export const useMainButton = (props: Props) => {
         isVisible: false,
       });
     };
-  }, [isLoading, props, themeParams?.buttonColor]);
+  }, [
+    backgroundColor,
+    hasShineEffect,
+    isEnabled,
+    isLoaderVisible,
+    isLoading,
+    isVisible,
+    text,
+    textColor,
+    themeParams?.buttonColor,
+    themeParams?.buttonTextColor,
+  ]);
 
   useEffect(() => {
     onMainButtonClick(onClick);
