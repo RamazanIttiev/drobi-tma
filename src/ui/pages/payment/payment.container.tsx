@@ -22,6 +22,7 @@ export const PaymentPage = memo(() => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [fieldError, setFieldError] = useState<string | null>(null);
@@ -81,6 +82,7 @@ export const PaymentPage = memo(() => {
   const handlePaymentResponse = useCallback(
     async (response: Payment | undefined) => {
       if (response?.status === "succeeded") {
+        setIsLoading(false);
         await setPaymentData(response);
         navigate("/payment-status", { state: { status: response?.status } });
       }
@@ -122,6 +124,7 @@ export const PaymentPage = memo(() => {
         amount: state.price.toString(),
       });
 
+      setIsLoading(true);
       const response = await vm.createPayment(payload);
       await handlePaymentResponse(response);
     } catch (error: unknown) {
@@ -144,6 +147,7 @@ export const PaymentPage = memo(() => {
   useMainButton({
     onClick: handleSubmit,
     text: `Оплатить`,
+    isLoading,
   });
 
   return (

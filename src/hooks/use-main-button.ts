@@ -42,6 +42,7 @@ export const useMainButton = (props: Props) => {
     return () => {
       setMainButtonParams({
         isVisible: false,
+        isLoaderVisible: false,
       });
     };
   }, [
