@@ -1,4 +1,3 @@
-import React, { memo, useCallback, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
 import {
   Cell,
@@ -9,21 +8,11 @@ import {
   Snackbar,
   Switch,
 } from "@telegram-apps/telegram-ui";
-import { useLocation } from "react-router-dom";
-import { usePayment } from "@/context/payment-data.context.tsx";
 import { PatternFormat } from "react-number-format";
-import { setMainButtonParams } from "@telegram-apps/sdk-react";
 import {
-  AvailablePaymentData,
   FieldErrors,
-  getPaymentPayload,
-  isTokenResponseSuccessful,
-  mapErrorsToFields,
+  PaymentDetails,
 } from "@/ui/pages/payment/payment.model.ts";
-import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
-import { Payment } from "@a2seven/yoo-checkout";
-import { CheckoutPageState } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
-import { useMainButton } from "@/hooks/use-main-button.ts";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
@@ -31,131 +20,32 @@ import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
 
-export const PaymentPage = memo(() => {
-  const location = useLocation();
+interface PaymentPageProps {
+  errors: FieldErrors;
+  fieldError: string | null;
+  paymentDetails: PaymentDetails;
+  save_payment_method: boolean;
+  isCVCVisible: boolean;
+  resetFieldError: () => void;
+  handleTogglePassword: () => void;
+  handleSavePaymentDetails: () => void;
+  handleChange: (
+    field: keyof PaymentDetails,
+  ) => (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-  const [isCVCVisible, setIsCVCVisible] = useState(false);
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [tokenError, setTokenError] = useState<string | null>(null);
-
-  const vm = usePaymentViewModel();
-  const state = location.state as CheckoutPageState;
-
+export const PaymentComponent = (props: PaymentPageProps) => {
   const {
+    errors,
     paymentDetails,
     save_payment_method,
-    setPaymentDetails,
-    setSavePaymentMethod,
-  } = usePayment();
-
-  const handleChange =
-    (field: keyof typeof paymentDetails) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-
-      setPaymentDetails({
-        ...paymentDetails,
-        [field]: value,
-      });
-
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [field]: "",
-      }));
-    };
-
-  const handleTogglePassword = useCallback(() => {
-    setIsCVCVisible((prev) => !prev);
-  }, []);
-
-  const setPaymentData = useCallback(
-    async (response: Payment) => {
-      const last4 = response.payment_method.card?.last4;
-      const first6 = response.payment_method.card?.first6;
-      const type = response.payment_method.card?.card_type;
-
-      if (!last4 || !first6 || !type) {
-        return;
-      }
-
-      const paymentData: AvailablePaymentData = {
-        id: response.id,
-        last4,
-        first6,
-        type,
-      };
-
-      await vm.addPaymentData(paymentData);
-    },
-    [vm],
-  );
-
-  const handlePaymentResponse = useCallback(
-    async (response: Payment | undefined) => {
-      if (response?.status === "succeeded") {
-        await setPaymentData(response);
-      }
-
-      if (response?.status === "pending") {
-        const confirmation_url = response.confirmation.confirmation_url;
-
-        await vm.setPendingPayment(response);
-
-        setMainButtonParams({
-          isVisible: false,
-        });
-
-        if (confirmation_url) {
-          window.location.href = confirmation_url;
-        }
-      }
-    },
-    [setPaymentData, vm],
-  );
-
-  const handleSubmit = useCallback(async () => {
-    try {
-      const payment_token = await vm.createPaymentToken(paymentDetails);
-
-      if (!isTokenResponseSuccessful(payment_token)) {
-        const fieldErrors = mapErrorsToFields(payment_token);
-
-        setTokenError("Ошибка при создании платежа. Проверьте данные карты");
-        setErrors(fieldErrors);
-        return;
-      }
-
-      const payload = getPaymentPayload({
-        payment_token,
-        merchant_customer_id: "",
-        save_payment_method,
-        description: state.title,
-        amount: state.price.toString(),
-      });
-
-      const response = await vm.createPayment(payload);
-      await handlePaymentResponse(response);
-    } catch (error: unknown) {
-      console.log(error);
-      setTokenError("Ошибка при создании платежа. Проверьте данные карты");
-    }
-  }, [
-    paymentDetails,
-    save_payment_method,
-    state.price,
-    state.title,
-    handlePaymentResponse,
-    vm,
-  ]);
-
-  const handleSavePaymentDetails = useCallback(() => {
-    setSavePaymentMethod(!save_payment_method);
-  }, [save_payment_method, setSavePaymentMethod]);
-
-  useMainButton({
-    onClick: handleSubmit,
-    text: `Оплатить`,
-  });
+    isCVCVisible,
+    fieldError,
+    handleChange,
+    resetFieldError,
+    handleTogglePassword,
+    handleSavePaymentDetails,
+  } = props;
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
@@ -226,13 +116,13 @@ export const PaymentPage = memo(() => {
           </Cell>
         </Section>
       </List>
-      {tokenError && (
+      {fieldError && (
         <Snackbar
-          children={tokenError}
+          children={fieldError}
           duration={5000}
-          onClose={() => setTokenError(null)}
+          onClose={resetFieldError}
         />
       )}
     </Page>
   );
-});
+};

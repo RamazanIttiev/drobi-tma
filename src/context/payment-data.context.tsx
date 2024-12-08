@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState } from "react";
-import { PaymentData } from "@/ui/pages/payment/payment.model.ts";
+import { PaymentDetails } from "@/ui/pages/payment/payment.model.ts";
 
 interface PaymentContextType {
-  paymentDetails: PaymentData;
+  paymentDetails: PaymentDetails;
   save_payment_method: boolean;
-  setPaymentDetails: (data: PaymentData) => void;
+  setPaymentDetails: (data: PaymentDetails) => void;
   setSavePaymentMethod: (value: boolean) => void;
 }
 
@@ -26,7 +26,7 @@ export const PaymentProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [paymentDetails, setPaymentDetails] = useState<PaymentData>(
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>(
     initialPaymentDetails,
   );
 

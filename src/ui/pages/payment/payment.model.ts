@@ -1,7 +1,7 @@
 import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
 import { BASE_CURRENCY } from "@/common/models.ts";
 
-export interface PaymentData {
+export interface PaymentDetails {
   cardNumber: string;
   expiryDate: string;
   cvc: string;

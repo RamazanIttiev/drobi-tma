@@ -12,7 +12,7 @@ import { HomePage } from "@/ui/pages/home/home.tsx";
 import { CoursePage } from "@/ui/pages/course/course.container.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";
 import { fetchCourse } from "@/services/courses/fetchCourse.ts";
-import { PaymentPage } from "@/ui/pages/payment/payment.component.tsx";
+import { PaymentPage } from "@/ui/pages/payment/payment.container.tsx";
 import { PaymentProvider } from "@/context/payment-data.context.tsx";
 import { PaymentStatusPage } from "@/ui/pages/payment-status/payment-status.tsx";
 

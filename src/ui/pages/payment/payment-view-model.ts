@@ -1,6 +1,6 @@
 import {
   AvailablePaymentData,
-  PaymentData,
+  PaymentDetails,
   TokenErrorResponse,
   TokenResponse,
 } from "@/ui/pages/payment/payment.model.ts";
@@ -18,7 +18,7 @@ interface PaymentViewModel {
   deletePendingPayment: () => Promise<void | undefined>;
   addPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
   createPaymentToken: (
-    paymentData: PaymentData,
+    paymentDetails: PaymentDetails,
   ) => Promise<string | TokenErrorResponse>;
   createPayment: (payload: ICreatePayment) => Promise<Payment | undefined>;
 }
@@ -54,15 +54,15 @@ export const usePaymentViewModel = (): PaymentViewModel => {
   };
 
   const createPaymentToken = async (
-    paymentData: PaymentData,
+    paymentDetails: PaymentDetails,
   ): Promise<string | TokenErrorResponse> => {
-    const expMonth = paymentData?.expiryDate?.slice(0, 2);
-    const expYear = paymentData?.expiryDate?.slice(3, 5);
+    const expMonth = paymentDetails?.expiryDate?.slice(0, 2);
+    const expYear = paymentDetails?.expiryDate?.slice(3, 5);
 
     return checkoutYooKassa
       .tokenize({
-        number: paymentData?.cardNumber,
-        cvc: paymentData?.cvc,
+        number: paymentDetails?.cardNumber,
+        cvc: paymentDetails?.cvc,
         month: expMonth,
         year: expYear,
       })
