@@ -66,7 +66,7 @@ export const PaymentStatusPage = () => {
     fetchPaymentData().catch(console.error);
   }, [setPaymentData, vm]);
 
-  useMainButton({ text: "Домой", onClick: () => navigate("/") });
+  useMainButton({ onClick: () => navigate("/"), text: "Домой" });
 
   const getContent = () => {
     switch (payment?.status) {

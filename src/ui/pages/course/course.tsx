@@ -2,13 +2,6 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { useCallback, useEffect, useState } from "react";
 import {
-  mainButton,
-  mountMainButton,
-  onMainButtonClick,
-  setMainButtonParams,
-  useLaunchParams,
-} from "@telegram-apps/sdk-react";
-import {
   calculatePrice,
   Course,
   CourseConfig,
@@ -24,13 +17,13 @@ import {
 import { Image } from "@telegram-apps/telegram-ui/dist/components/Blocks/Image/Image";
 import { Caption, LargeTitle, List, Section } from "@telegram-apps/telegram-ui";
 import { Select } from "@/ui/atoms/select/select.tsx";
+import { useMainButton } from "@/hooks/use-main-button.ts";
 
 import "./course.css";
 
 export const CoursePage = () => {
   const course = useLoaderData() as Course;
   const navigate = useNavigate();
-  const { themeParams } = useLaunchParams();
 
   const [config, setConfig] = useState<CourseConfig>({
     selectedLevel: "5-8 класс",
@@ -77,26 +70,10 @@ export const CoursePage = () => {
     });
   }, [config, course.id, course.title, navigate, price]);
 
-  useEffect(() => {
-    mountMainButton();
-    setMainButtonParams({
-      backgroundColor: themeParams?.buttonColor,
-      isVisible: true,
-      text: `К оплате ${price.toString()} ₽`,
-    });
-
-    return () => {
-      setMainButtonParams({
-        isVisible: false,
-      });
-    };
-  }, [course.id, navigateToCheckout, price, themeParams?.buttonColor]);
-
-  useEffect(() => {
-    onMainButtonClick(navigateToCheckout);
-
-    return () => mainButton.offClick(navigateToCheckout);
-  }, [navigateToCheckout]);
+  useMainButton({
+    text: `К оплате ${price.toString()} ₽`,
+    onClick: navigateToCheckout,
+  });
 
   const onLevelChange = (value: CourseLevel) => {
     setConfig((prevState) => ({

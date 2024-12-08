@@ -6,16 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
-import {
-  mainButton,
-  mountMainButton,
-  mountSecondaryButton,
-  onMainButtonClick,
-  onSecondaryButtonClick,
-  setMainButtonParams,
-  setSecondaryButtonParams,
-  useLaunchParams,
-} from "@telegram-apps/sdk-react";
+import { setMainButtonParams } from "@telegram-apps/sdk-react";
 
 import {
   AvailablePaymentData,
@@ -24,11 +15,10 @@ import {
 
 import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-select-modal.component.tsx";
 
-import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
-import { CloudStorageKeys } from "@/common/models.ts";
 
 import "./course-checkout.css";
+import { useMainButton } from "@/hooks/use-main-button.ts";
 
 export interface CheckoutPageState {
   title: string;
@@ -40,9 +30,6 @@ export const CourseCheckoutPage = memo(() => {
   const location = useLocation();
   const state = location.state as CheckoutPageState;
   const navigate = useNavigate();
-  const { themeParams } = useLaunchParams();
-
-  const { getKeys, getItem, deleteItem } = useCloudStorage();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -117,62 +104,11 @@ export const CourseCheckoutPage = memo(() => {
     vm,
   ]);
 
-  useEffect(() => {
-    mountMainButton();
-    setMainButtonParams({
-      backgroundColor: themeParams?.buttonColor,
-      isVisible: true,
-      isEnabled: !isLoading,
-      hasShineEffect: true,
-      isLoaderVisible: isLoading,
-      text: mainButtonText,
-    });
-
-    return () => {
-      setMainButtonParams({
-        isVisible: false,
-      });
-    };
-  }, [isLoading, mainButtonText, themeParams?.buttonColor]);
-
-  useEffect(() => {
-    onMainButtonClick(handleMainButtonClick);
-
-    return () => {
-      mainButton.offClick(handleMainButtonClick);
-    };
-  }, [handleMainButtonClick]);
-
-  useEffect(() => {
-    if (import.meta.env.MODE === "development") {
-      mountSecondaryButton();
-      setSecondaryButtonParams({
-        isVisible: true,
-        text: "Cloud",
-      });
-
-      onSecondaryButtonClick(
-        async () =>
-          await getKeys()?.then(async (res) => {
-            await getItem(res).then((items) => {
-              if (items) {
-                Object.keys(items).forEach((key) => {
-                  deleteItem(key as CloudStorageKeys);
-                });
-              }
-            });
-          }),
-      );
-    }
-  }, [deleteItem, getItem, getKeys]);
-
-  useEffect(() => {
-    getKeys()?.then((res) => {
-      getItem(res).then((items) => {
-        console.log("cloud", items);
-      });
-    });
-  }, [getItem, getKeys]);
+  useMainButton({
+    text: mainButtonText,
+    onClick: handleMainButtonClick,
+    isLoading,
+  });
 
   useEffect(() => {
     const fetchPaymentData = async () => {

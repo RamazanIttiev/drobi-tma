@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Page } from "@/ui/organisms/page/page";
 import {
   Cell,
@@ -12,13 +12,7 @@ import {
 import { useLocation } from "react-router-dom";
 import { usePayment } from "@/context/payment-data.context.tsx";
 import { PatternFormat } from "react-number-format";
-import {
-  mainButton,
-  mountMainButton,
-  onMainButtonClick,
-  setMainButtonParams,
-  useLaunchParams,
-} from "@telegram-apps/sdk-react";
+import { setMainButtonParams } from "@telegram-apps/sdk-react";
 import {
   AvailablePaymentData,
   FieldErrors,
@@ -29,6 +23,7 @@ import {
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
 import { CheckoutPageState } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
+import { useMainButton } from "@/hooks/use-main-button.ts";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
@@ -38,7 +33,6 @@ import "./payment.css";
 
 export const PaymentPage = memo(() => {
   const location = useLocation();
-  const { themeParams } = useLaunchParams();
 
   const [isCVCVisible, setIsCVCVisible] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -158,28 +152,10 @@ export const PaymentPage = memo(() => {
     setSavePaymentMethod(!save_payment_method);
   }, [save_payment_method, setSavePaymentMethod]);
 
-  useEffect(() => {
-    mountMainButton();
-    setMainButtonParams({
-      backgroundColor: themeParams?.buttonColor,
-      isVisible: true,
-      text: `Оплатить`,
-    });
-
-    return () => {
-      setMainButtonParams({
-        isVisible: false,
-      });
-    };
-  }, [themeParams?.buttonColor]);
-
-  useEffect(() => {
-    onMainButtonClick(handleSubmit);
-
-    return () => {
-      mainButton.offClick(handleSubmit);
-    };
-  }, [handleSubmit]);
+  useMainButton({
+    onClick: handleSubmit,
+    text: `Оплатить`,
+  });
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>

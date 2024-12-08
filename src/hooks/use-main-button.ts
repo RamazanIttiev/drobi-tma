@@ -9,11 +9,12 @@ import {
 } from "@telegram-apps/sdk-react";
 
 interface Props extends Partial<MainButtonState> {
-  onClick?: () => void | Promise<void>;
+  onClick: () => void | Promise<void>;
+  isLoading?: boolean;
 }
 
 export const useMainButton = (props: Props) => {
-  const { onClick } = props;
+  const { onClick, isLoading } = props;
   const { themeParams } = useLaunchParams();
 
   useEffect(() => {
@@ -21,6 +22,8 @@ export const useMainButton = (props: Props) => {
     setMainButtonParams({
       ...props,
       isVisible: true,
+      isEnabled: !isLoading,
+      isLoaderVisible: isLoading,
       backgroundColor: themeParams?.buttonColor,
       hasShineEffect: true,
     });
@@ -30,13 +33,11 @@ export const useMainButton = (props: Props) => {
         isVisible: false,
       });
     };
-  }, [props, themeParams?.buttonColor]);
+  }, [isLoading, props, themeParams?.buttonColor]);
 
   useEffect(() => {
-    if (onClick) {
-      onMainButtonClick(onClick);
-    }
+    onMainButtonClick(onClick);
 
-    return () => onClick && mainButton.offClick(onClick);
+    return () => mainButton.offClick(onClick);
   }, [onClick]);
 };
