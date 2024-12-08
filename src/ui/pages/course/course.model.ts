@@ -7,10 +7,10 @@ export interface Course {
 }
 
 export interface CourseConfig {
-  selectedLevel: CourseLevel;
-  selectedQuantity: CourseQuantity;
-  selectedType: CourseType;
-  selectedDuration: CourseDuration;
+  level: CourseLevel;
+  quantity: CourseQuantity;
+  type: CourseType;
+  duration: CourseDuration;
 }
 
 export type CourseLevel = "5-8 класс" | "9 класс" | "10-11 класс";

@@ -130,19 +130,19 @@ export const CourseCheckoutPage = memo(() => {
           </div>
           <div className={"checkout__cell"}>
             <Caption className={"checkout__hint"}>Уровень</Caption>
-            <Text>{state?.config?.selectedLevel}</Text>
+            <Text>{state?.config?.level}</Text>
           </div>
           <div className={"checkout__cell"}>
             <Caption className={"checkout__hint"}>Количество уроков</Caption>
-            <Text>{state?.config?.selectedQuantity}</Text>
+            <Text>{state?.config?.quantity}</Text>
           </div>
           <div className={"checkout__cell"}>
             <Caption className={"checkout__hint"}>Длительность урока</Caption>
-            <Text>{state?.config?.selectedDuration}</Text>
+            <Text>{state?.config?.duration}</Text>
           </div>
           <div className={"checkout__cell"}>
             <Caption className={"checkout__hint"}>Тип</Caption>
-            <Text>{state?.config?.selectedType}</Text>
+            <Text>{state?.config?.type}</Text>
           </div>
         </Section>
 

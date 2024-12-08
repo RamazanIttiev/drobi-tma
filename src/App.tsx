@@ -9,7 +9,7 @@ import {
 
 import { CourseCheckoutPage } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
 import { HomePage } from "@/ui/pages/home/home.tsx";
-import { CoursePage } from "@/ui/pages/course/course.tsx";
+import { CoursePage } from "@/ui/pages/course/course.container.tsx";
 import { fetchCourses } from "@/services/courses/fetchCourses.ts";
 import { fetchCourse } from "@/services/courses/fetchCourse.ts";
 import { PaymentPage } from "@/ui/pages/payment/payment.component.tsx";
