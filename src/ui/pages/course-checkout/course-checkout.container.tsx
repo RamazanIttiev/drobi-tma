@@ -74,7 +74,7 @@ export const CourseCheckoutPage = memo(() => {
 
       if (response?.status === "succeeded") {
         setIsLoading(false);
-        navigate(import.meta.env.VITE_PAYMENT_STATUS_URL);
+        navigate("/payment-status", { state: { status: response?.status } });
       }
 
       if (response?.status === "pending") {

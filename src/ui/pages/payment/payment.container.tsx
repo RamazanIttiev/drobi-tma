@@ -82,7 +82,7 @@ export const PaymentPage = memo(() => {
     async (response: Payment | undefined) => {
       if (response?.status === "succeeded") {
         await setPaymentData(response);
-        navigate("/payment-status", { state: { status: "succeeded" } });
+        navigate("/payment-status", { state: { status: response?.status } });
       }
 
       if (response?.status === "pending") {
