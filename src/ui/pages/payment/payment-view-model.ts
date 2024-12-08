@@ -16,7 +16,7 @@ interface PaymentViewModel {
   setPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
   setPendingPayment: (payment: Payment) => Promise<void | undefined>;
   deletePendingPayment: () => Promise<void | undefined>;
-  addPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
+  addPaymentData: (data: AvailablePaymentData) => Promise<void>;
   createPaymentToken: (
     paymentDetails: PaymentDetails,
   ) => Promise<string | TokenErrorResponse>;
@@ -53,6 +53,30 @@ export const usePaymentViewModel = (): PaymentViewModel => {
     });
   };
 
+  const setPaymentData = async (data: AvailablePaymentData) => {
+    return setItem("payment_data", [data]);
+  };
+
+  const setPendingPayment = async (payment: Payment) => {
+    return setItem("pending_payment", payment);
+  };
+
+  const deletePendingPayment = async () => {
+    return deleteItem("pending_payment");
+  };
+
+  const addPaymentData = async (data: AvailablePaymentData) => {
+    const existingData = await getPaymentData();
+
+    const isDuplicate = existingData?.some(
+      (item) => item.first6 === data.first6 && item.last4 === data.last4,
+    );
+
+    if (!isDuplicate) {
+      addItem("payment_data", [data]);
+    }
+  };
+
   const createPaymentToken = async (
     paymentDetails: PaymentDetails,
   ): Promise<string | TokenErrorResponse> => {
@@ -69,22 +93,6 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       .then(async (res: TokenResponse) =>
         res.status === "success" ? res.data.response.paymentToken : res,
       );
-  };
-
-  const setPaymentData = async (data: AvailablePaymentData) => {
-    return setItem("payment_data", [data]);
-  };
-
-  const setPendingPayment = async (payment: Payment) => {
-    return setItem("pending_payment", payment);
-  };
-
-  const deletePendingPayment = async () => {
-    return deleteItem("pending_payment");
-  };
-
-  const addPaymentData = async (data: AvailablePaymentData) => {
-    return addItem("payment_data", [data]);
   };
 
   const createPayment = async (payload: ICreatePayment) => {
