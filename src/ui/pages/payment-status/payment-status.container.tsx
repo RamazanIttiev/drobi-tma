@@ -1,16 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { AvailablePaymentData } from "@/ui/pages/payment/payment.model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
-import { Page } from "@/ui/organisms/page/page.tsx";
-import Lottie from "lottie-react";
-import { Spinner, Text } from "@telegram-apps/telegram-ui";
+import { PaymentStatusComponent } from "@/ui/pages/payment-status/payment-status.component.tsx";
 
 import { useNavigate } from "react-router-dom";
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
-
-import duckLike from "@/assets/lottie/duck_like.json";
-import duckSad from "@/assets/lottie/duck_sad.json";
 
 import "./payment-status.css";
 
@@ -68,42 +63,5 @@ export const PaymentStatusPage = () => {
 
   useMainButton({ onClick: () => navigate("/"), text: "Домой" });
 
-  const getContent = () => {
-    switch (payment?.status) {
-      case "succeeded": {
-        return (
-          <>
-            <Lottie
-              animationData={duckLike}
-              loop={true}
-              className={"payment-status__lottie"}
-            />
-            <Text>Ваш платеж прошел успешно 🎉</Text>
-          </>
-        );
-      }
-      case "pending": {
-        return (
-          <>
-            <Lottie
-              animationData={duckSad}
-              loop={true}
-              className={"payment-status__lottie"}
-            />
-            <Text className={"payment-status__text"}>
-              С оплатой пошло что то не так. Пожалуйста попробуйте заново 🥲
-            </Text>
-          </>
-        );
-      }
-      default: {
-        return <Spinner size="m" />;
-      }
-    }
-  };
-  return (
-    <Page fixed className={"payment-status"}>
-      {getContent()}
-    </Page>
-  );
+  return <PaymentStatusComponent status={payment?.status} />;
 };
