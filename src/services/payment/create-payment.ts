@@ -1,7 +1,7 @@
 import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
 import axios from "axios";
 
-export const createPaymentFroApi = async (
+export const createPaymentFromApi = async (
   payload: ICreatePayment,
 ): Promise<Payment | undefined> => {
   try {

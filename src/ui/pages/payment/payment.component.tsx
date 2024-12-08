@@ -74,26 +74,49 @@ export const PaymentPage = memo(() => {
     setIsCVCVisible((prev) => !prev);
   }, []);
 
-  const successfulPayment = useCallback(
+  const setPaymentData = useCallback(
+    async (response: Payment) => {
+      const last4 = response.payment_method.card?.last4;
+      const first6 = response.payment_method.card?.first6;
+      const type = response.payment_method.card?.card_type;
+
+      if (!last4 || !first6 || !type) {
+        return;
+      }
+
+      const paymentData: AvailablePaymentData = {
+        id: response.id,
+        last4,
+        first6,
+        type,
+      };
+
+      await vm.addPaymentData(paymentData);
+    },
+    [vm],
+  );
+
+  const handlePaymentResponse = useCallback(
     async (response: Payment | undefined) => {
       if (response?.status === "succeeded") {
-        const last4 = response.payment_method.card?.last4;
-        const first6 = response.payment_method.card?.first6;
-        const type = response.payment_method.card?.card_type;
+        await setPaymentData(response);
+      }
 
-        if (last4 && first6 && type) {
-          const paymentData: AvailablePaymentData = {
-            id: response.id,
-            last4,
-            first6,
-            type,
-          };
+      if (response?.status === "pending") {
+        const confirmation_url = response.confirmation.confirmation_url;
 
-          await vm.addPaymentData(paymentData);
+        await vm.setPendingPayment(response);
+
+        setMainButtonParams({
+          isVisible: false,
+        });
+
+        if (confirmation_url) {
+          window.location.href = confirmation_url;
         }
       }
     },
-    [vm],
+    [setPaymentData, vm],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -117,7 +140,7 @@ export const PaymentPage = memo(() => {
       });
 
       const response = await vm.createPayment(payload);
-      await successfulPayment(response);
+      await handlePaymentResponse(response);
     } catch (error: unknown) {
       console.log(error);
       setTokenError("Ошибка при создании платежа. Проверьте данные карты");
@@ -127,7 +150,7 @@ export const PaymentPage = memo(() => {
     save_payment_method,
     state.price,
     state.title,
-    successfulPayment,
+    handlePaymentResponse,
     vm,
   ]);
 

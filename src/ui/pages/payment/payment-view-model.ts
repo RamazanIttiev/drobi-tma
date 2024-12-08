@@ -6,10 +6,16 @@ import {
 } from "@/ui/pages/payment/payment.model.ts";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
-import { createPaymentFroApi } from "@/services/payment/create-payment.ts";
+import { createPaymentFromApi } from "@/services/payment/create-payment.ts";
+import { getPaymentFromApi } from "@/services/payment/get-payment.ts";
 
 interface PaymentViewModel {
+  getPayment: (id: string) => Promise<Payment | undefined>;
+  getPendingPayment: () => Promise<Payment | undefined>;
+  getPaymentData: () => Promise<AvailablePaymentData[] | undefined>;
   setPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
+  setPendingPayment: (payment: Payment) => Promise<void | undefined>;
+  deletePendingPayment: () => Promise<void | undefined>;
   addPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
   createPaymentToken: (
     paymentData: PaymentData,
@@ -25,7 +31,27 @@ const checkoutYooKassa = window.YooMoneyCheckout(
 );
 
 export const usePaymentViewModel = (): PaymentViewModel => {
-  const { setItem, addItem } = useCloudStorage();
+  const { getItem, setItem, addItem, deleteItem } = useCloudStorage();
+
+  const getPayment = async (id: string) => {
+    return await getPaymentFromApi(id);
+  };
+
+  const getPaymentData = async () => {
+    return getItem(["payment_data"])?.then((res) => {
+      const paymentData = res?.payment_data as AvailablePaymentData[];
+
+      if (paymentData.length !== 0) {
+        return paymentData;
+      } else return undefined;
+    });
+  };
+
+  const getPendingPayment = async () => {
+    return getItem(["pending_payment"])?.then((res) => {
+      return res?.pending_payment as Payment;
+    });
+  };
 
   const createPaymentToken = async (
     paymentData: PaymentData,
@@ -49,16 +75,29 @@ export const usePaymentViewModel = (): PaymentViewModel => {
     return setItem("payment_data", [data]);
   };
 
+  const setPendingPayment = async (payment: Payment) => {
+    return setItem("pending_payment", payment);
+  };
+
+  const deletePendingPayment = async () => {
+    return deleteItem("pending_payment");
+  };
+
   const addPaymentData = async (data: AvailablePaymentData) => {
     return addItem("payment_data", [data]);
   };
 
   const createPayment = async (payload: ICreatePayment) => {
-    return await createPaymentFroApi(payload);
+    return await createPaymentFromApi(payload);
   };
 
   return {
+    getPayment,
+    getPaymentData,
+    getPendingPayment,
     setPaymentData,
+    setPendingPayment,
+    deletePendingPayment,
     addPaymentData,
     createPayment,
     createPaymentToken,

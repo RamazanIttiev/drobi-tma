@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
-import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-checkout-view-model.ts";
 import {
   mainButton,
   mountMainButton,
@@ -25,9 +24,11 @@ import {
 
 import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-select-modal.component.tsx";
 
-import "./course-checkout.css";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
+import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { CloudStorageKeys } from "@/common/models.ts";
+
+import "./course-checkout.css";
 
 export interface CheckoutPageState {
   title: string;
@@ -52,7 +53,7 @@ export const CourseCheckoutPage = memo(() => {
     AvailablePaymentData | undefined
   >();
 
-  const vm = useCourseCheckoutViewModel();
+  const vm = usePaymentViewModel();
 
   const navigateToPayment = useCallback(() => {
     navigate("/payment-details", {
@@ -86,14 +87,29 @@ export const CourseCheckoutPage = memo(() => {
       const response = await vm.createPayment(payload);
 
       if (response?.status === "succeeded") {
-        console.log("Payment succeeded");
         setIsLoading(false);
+        navigate(import.meta.env.VITE_PAYMENT_STATUS_URL);
+      }
+
+      if (response?.status === "pending") {
+        const confirmation_url = response.confirmation.confirmation_url;
+
+        await vm.setPendingPayment(response);
+
+        setMainButtonParams({
+          isVisible: false,
+        });
+
+        if (confirmation_url) {
+          window.location.href = confirmation_url;
+        }
       }
     } else {
       navigateToPayment();
     }
   }, [
     availablePaymentData,
+    navigate,
     navigateToPayment,
     selectedPaymentData?.id,
     state.price,

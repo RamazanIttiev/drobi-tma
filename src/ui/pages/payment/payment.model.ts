@@ -96,7 +96,7 @@ export const getPaymentPayload = ({
     capture: true,
     confirmation: {
       type: "redirect",
-      return_url: import.meta.env.VITE_SUCCESS_PAYMENT_URL,
+      return_url: import.meta.env.VITE_PAYMENT_STATUS_URL,
     },
     save_payment_method,
     payment_method_id,
