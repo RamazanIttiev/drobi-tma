@@ -10,8 +10,10 @@ export interface CourseCheckoutComponentProps {
   price: number;
   config: CourseConfig;
   paymentDataLabel?: string;
-  showPaymentDataLabel?: boolean;
+  personalDetailsLabel?: string;
+  showPaymentDataSection?: boolean;
   openModal?: () => void;
+  navigateToPersonalData?: () => void;
 }
 
 export const CourseCheckoutComponent = (
@@ -22,7 +24,9 @@ export const CourseCheckoutComponent = (
     price,
     config,
     paymentDataLabel,
-    showPaymentDataLabel,
+    personalDetailsLabel,
+    showPaymentDataSection,
+    navigateToPersonalData,
     openModal,
   } = props;
 
@@ -59,7 +63,21 @@ export const CourseCheckoutComponent = (
           </div>
         </Section>
 
-        {showPaymentDataLabel && (
+        <Section>
+          <button
+            className={"checkout__cell checkout__cell_button"}
+            onClick={navigateToPersonalData}
+          >
+            <Text>ФИО</Text>
+            <Text className={"checkout__hint"}>
+              <Caption className={"checkout__personal-data"}>
+                {personalDetailsLabel}
+              </Caption>
+            </Text>
+          </button>
+        </Section>
+
+        {showPaymentDataSection && (
           <Section>
             <button
               className={"checkout__cell checkout__cell_button"}

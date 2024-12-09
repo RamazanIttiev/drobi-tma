@@ -18,6 +18,7 @@ import { useMainButton } from "@/hooks/use-main-button.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 
 import "./course-checkout.css";
+import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 
 export interface CheckoutPageState {
   title: string;
@@ -40,6 +41,7 @@ export const CourseCheckoutPage = memo(() => {
   >();
 
   const vm = usePaymentViewModel();
+  const { personalDetails } = usePersonalDetails();
 
   const navigateToPayment = useCallback(() => {
     navigate("/payment-details", {
@@ -53,6 +55,12 @@ export const CourseCheckoutPage = memo(() => {
     }
   }, [selectedPaymentData]);
 
+  const personalDetailsLabel = useMemo(() => {
+    if (personalDetails) {
+      return personalDetails.name;
+    }
+  }, [personalDetails]);
+
   const mainButtonText = useMemo(
     () => (selectedPaymentData ? "Оплатить" : "К оплате"),
     [selectedPaymentData],
@@ -65,8 +73,8 @@ export const CourseCheckoutPage = memo(() => {
 
       const payload = getPaymentPayload({
         payment_method_id: selectedPaymentData?.id,
-        merchant_customer_id: "",
-        description: state.title,
+        merchant_customer_id: personalDetails.phone,
+        description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
         amount: state.price.toString(),
       });
 
@@ -97,6 +105,8 @@ export const CourseCheckoutPage = memo(() => {
     availablePaymentData,
     navigate,
     navigateToPayment,
+    personalDetails.name,
+    personalDetails.phone,
     selectedPaymentData?.id,
     state.price,
     state.title,
@@ -126,7 +136,11 @@ export const CourseCheckoutPage = memo(() => {
         title={state.title}
         price={state.price}
         paymentDataLabel={paymentDataLabel}
-        showPaymentDataLabel={availablePaymentData?.length !== 0}
+        personalDetailsLabel={personalDetailsLabel}
+        navigateToPersonalData={() => navigate("/personal-details")}
+        showPaymentDataSection={
+          availablePaymentData && personalDetails.name !== ""
+        }
         openModal={() => setIsModalOpen(true)}
       />
       <CardSelectModalComponent

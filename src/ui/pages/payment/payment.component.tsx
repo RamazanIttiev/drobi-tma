@@ -9,10 +9,8 @@ import {
   Switch,
 } from "@telegram-apps/telegram-ui";
 import { PatternFormat } from "react-number-format";
-import {
-  FieldErrors,
-  PaymentDetails,
-} from "@/ui/pages/payment/payment.model.ts";
+import { PaymentDetails } from "@/ui/pages/payment/payment.model.ts";
+import { FieldErrors } from "@/common/models.ts";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";

@@ -12,3 +12,7 @@ export const ngrokHeader =
         "ngrok-skip-browser-warning": "true",
       }
     : null;
+
+export interface FieldErrors {
+  [key: string]: string;
+}

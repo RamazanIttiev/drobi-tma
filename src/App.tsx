@@ -1,4 +1,11 @@
-import { miniApp, useLaunchParams, useSignal } from "@telegram-apps/sdk-react";
+import {
+  miniApp,
+  mountSecondaryButton,
+  onSecondaryButtonClick,
+  setSecondaryButtonParams,
+  useLaunchParams,
+  useSignal,
+} from "@telegram-apps/sdk-react";
 import { AppRoot } from "@telegram-apps/telegram-ui";
 import {
   createBrowserRouter,
@@ -15,6 +22,11 @@ import { fetchCourse } from "@/services/courses/fetchCourse.ts";
 import { PaymentPage } from "@/ui/pages/payment/payment.container.tsx";
 import { PaymentProvider } from "@/context/payment-data.context.tsx";
 import { PaymentStatusPage } from "@/ui/pages/payment-status/payment-status.container.tsx";
+import { PersonalDetailsProvider } from "@/context/personal-details.context.tsx";
+import { PersonalDetailsPage } from "@/ui/pages/personal-details/personal-details.page.tsx";
+import { useEffect } from "react";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
+import { CloudStorageKeys } from "@/common/models.ts";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,6 +39,7 @@ const router = createBrowserRouter(
       />
       <Route path="checkout/:id" element={<CourseCheckoutPage />} />
       <Route path="payment-details" element={<PaymentPage />} />
+      <Route path="personal-details" element={<PersonalDetailsPage />} />
 
       <Route path="payment-status" element={<PaymentStatusPage />} />
     </>,
@@ -37,13 +50,46 @@ export function App() {
   const lp = useLaunchParams();
   const isDark = useSignal(miniApp.isDark);
 
+  const { getItem, getKeys, deleteItem } = useCloudStorage();
+
+  useEffect(() => {
+    if (import.meta.env.MODE === "development") {
+      getKeys()?.then((res) => {
+        getItem(res).then((items) => {
+          console.log("cloud", items);
+        });
+      });
+
+      mountSecondaryButton();
+      setSecondaryButtonParams({
+        isVisible: true,
+        text: "Cloud",
+      });
+
+      onSecondaryButtonClick(
+        async () =>
+          await getKeys()?.then(async (res) => {
+            await getItem(res).then((items) => {
+              if (items) {
+                Object.keys(items).forEach((key) => {
+                  deleteItem(key as CloudStorageKeys);
+                });
+              }
+            });
+          }),
+      );
+    }
+  }, [deleteItem, getItem, getKeys]);
+
   return (
     <AppRoot
       appearance={isDark ? "dark" : "light"}
       platform={["macos", "ios"].includes(lp.platform) ? "ios" : "base"}
     >
       <PaymentProvider>
-        <RouterProvider router={router} />
+        <PersonalDetailsProvider>
+          <RouterProvider router={router} />
+        </PersonalDetailsProvider>
       </PaymentProvider>
     </AppRoot>
   );

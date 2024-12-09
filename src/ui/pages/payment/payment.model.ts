@@ -1,5 +1,5 @@
 import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
-import { BASE_CURRENCY } from "@/common/models.ts";
+import { BASE_CURRENCY, FieldErrors } from "@/common/models.ts";
 
 export interface PaymentDetails {
   cardNumber: string;
@@ -36,10 +36,6 @@ export interface TokenErrorResponse {
     type: string;
   };
   status: "error";
-}
-
-export interface FieldErrors {
-  [key: string]: string;
 }
 
 export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
@@ -81,6 +77,7 @@ export const getPaymentPayload = ({
   merchant_customer_id,
   save_payment_method,
   payment_method_id,
+  metadata,
 }: Omit<ICreatePayment, "amount"> & {
   amount: string;
   selectedPaymentData?: AvailablePaymentData;
@@ -100,6 +97,7 @@ export const getPaymentPayload = ({
     },
     save_payment_method,
     payment_method_id,
+    metadata,
   };
 
   if (payment_token && !selectedPaymentData?.id) {

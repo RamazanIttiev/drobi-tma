@@ -5,18 +5,19 @@ import { usePayment } from "@/context/payment-data.context.tsx";
 import { setMainButtonParams } from "@telegram-apps/sdk-react";
 import {
   AvailablePaymentData,
-  FieldErrors,
   getPaymentPayload,
   isTokenResponseSuccessful,
   mapErrorsToFields,
 } from "@/ui/pages/payment/payment.model.ts";
+import { FieldErrors } from "@/common/models.ts";
 import { CheckoutPageState } from "@/ui/pages/course-checkout/course-checkout.container.tsx";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
 import { useMainButton } from "@/hooks/use-main-button.ts";
+import { PaymentComponent } from "@/ui/pages/payment/payment.component.tsx";
+import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 
 import "./payment.css";
-import { PaymentComponent } from "@/ui/pages/payment/payment.component.tsx";
 
 export const PaymentPage = memo(() => {
   const location = useLocation();
@@ -28,6 +29,8 @@ export const PaymentPage = memo(() => {
   const [fieldError, setFieldError] = useState<string | null>(null);
 
   const vm = usePaymentViewModel();
+  const { personalDetails } = usePersonalDetails();
+
   const state = location.state as CheckoutPageState;
 
   const {
@@ -118,9 +121,9 @@ export const PaymentPage = memo(() => {
 
       const payload = getPaymentPayload({
         payment_token,
-        merchant_customer_id: "",
+        merchant_customer_id: personalDetails.phone,
         save_payment_method,
-        description: state.title,
+        description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
         amount: state.price.toString(),
       });
 
@@ -132,12 +135,14 @@ export const PaymentPage = memo(() => {
       setFieldError("Ошибка при создании платежа. Проверьте данные карты");
     }
   }, [
-    paymentDetails,
-    save_payment_method,
-    state.price,
-    state.title,
-    handlePaymentResponse,
     vm,
+    paymentDetails,
+    personalDetails.phone,
+    personalDetails.name,
+    save_payment_method,
+    state.title,
+    state.price,
+    handlePaymentResponse,
   ]);
 
   const handleSavePaymentDetails = useCallback(() => {
