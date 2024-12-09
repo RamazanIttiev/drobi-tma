@@ -17,8 +17,10 @@ import { CardSelectModalComponent } from "@/ui/organisms/card-select-model/card-
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 
-import "./course-checkout.css";
 import { usePersonalDetails } from "@/context/personal-details.context.tsx";
+import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
+
+import "./course-checkout.css";
 
 export interface CheckoutPageState {
   title: string;
@@ -70,6 +72,12 @@ export const CourseCheckoutPage = memo(() => {
     setIsLoading(true);
     if (availablePaymentData) {
       setIsModalOpen(false);
+
+      await addStudyRequestFromApi({
+        fullName: personalDetails.name,
+        eMail: personalDetails.email,
+        phone: personalDetails.phone,
+      });
 
       const payload = getPaymentPayload({
         payment_method_id: selectedPaymentData?.id,

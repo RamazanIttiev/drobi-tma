@@ -16,6 +16,7 @@ import { Payment } from "@a2seven/yoo-checkout";
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { PaymentComponent } from "@/ui/pages/payment/payment.component.tsx";
 import { usePersonalDetails } from "@/context/personal-details.context.tsx";
+import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
 
 import "./payment.css";
 
@@ -84,6 +85,12 @@ export const PaymentPage = memo(() => {
 
   const handlePaymentResponse = useCallback(
     async (response: Payment | undefined) => {
+      await addStudyRequestFromApi({
+        fullName: personalDetails.name,
+        eMail: personalDetails.email,
+        phone: personalDetails.phone,
+      });
+
       if (response?.status === "succeeded") {
         setIsLoading(false);
         await setPaymentData(response);
@@ -104,7 +111,14 @@ export const PaymentPage = memo(() => {
         }
       }
     },
-    [navigate, setPaymentData, vm],
+    [
+      navigate,
+      personalDetails.email,
+      personalDetails.name,
+      personalDetails.phone,
+      setPaymentData,
+      vm,
+    ],
   );
 
   const handleSubmit = useCallback(async () => {
