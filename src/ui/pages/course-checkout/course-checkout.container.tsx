@@ -21,6 +21,8 @@ import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
 
 import "./course-checkout.css";
+import { Payment } from "@a2seven/yoo-checkout";
+import { handlePaymentPending } from "@/ui/pages/payment/utils/payment.ts";
 
 export interface CheckoutPageState {
   title: string;
@@ -45,12 +47,6 @@ export const CourseCheckoutPage = memo(() => {
   const vm = usePaymentViewModel();
   const { personalDetails } = usePersonalDetails();
 
-  const navigateToPayment = useCallback(() => {
-    navigate("/payment-details", {
-      state,
-    });
-  }, [navigate, state]);
-
   const paymentDataLabel = useMemo(() => {
     if (selectedPaymentData) {
       return `**** ${selectedPaymentData.last4}`;
@@ -68,62 +64,85 @@ export const CourseCheckoutPage = memo(() => {
     [selectedPaymentData],
   );
 
-  const handleMainButtonClick = useCallback(async () => {
-    setIsLoading(true);
-    if (availablePaymentData) {
-      setIsModalOpen(false);
+  const navigateToPayment = useCallback(() => {
+    navigate("/payment-details", {
+      state,
+    });
+  }, [navigate, state]);
 
+  const handleStudyRequest = useCallback(async () => {
+    try {
       await addStudyRequestFromApi({
         fullName: personalDetails.name,
         eMail: personalDetails.email,
         phone: personalDetails.phone,
       });
+    } catch (error) {
+      console.error("Failed to add study request:", error);
+      setIsLoading(false);
+    }
+  }, [personalDetails.name, personalDetails.email, personalDetails.phone]);
 
-      const payload = getPaymentPayload({
-        payment_method_id: selectedPaymentData?.id,
-        merchant_customer_id: personalDetails.phone,
-        description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
-        amount: state.price.toString(),
-      });
+  const handlePayment = useCallback(async () => {
+    const payload = getPaymentPayload({
+      payment_method_id: selectedPaymentData?.id,
+      merchant_customer_id: personalDetails.phone,
+      description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
+      amount: state.price.toString(),
+    });
 
-      const response = await vm.createPayment(payload);
+    return await vm.createPayment(payload);
+  }, [
+    selectedPaymentData?.id,
+    personalDetails.phone,
+    personalDetails.name,
+    state.title,
+    state.price,
+    vm,
+  ]);
+
+  const handlePaymentSuccess = useCallback(
+    (response: Payment) => {
+      setIsLoading(false);
+      navigate("/payment-status", { state: { status: response?.status } });
+    },
+    [navigate],
+  );
+
+  const handleSubmit = useCallback(async () => {
+    setIsLoading(true);
+
+    if (availablePaymentData) {
+      setIsModalOpen(false);
+
+      await handleStudyRequest();
+
+      const response = await handlePayment();
 
       if (response?.status === "succeeded") {
-        setIsLoading(false);
-        navigate("/payment-status", { state: { status: response?.status } });
-      }
-
-      if (response?.status === "pending") {
-        const confirmation_url = response.confirmation.confirmation_url;
-
-        await vm.setPendingPayment(response);
-
-        setMainButtonParams({
-          isVisible: false,
-        });
-
-        if (confirmation_url) {
-          window.location.href = confirmation_url;
-        }
+        handlePaymentSuccess(response);
+      } else if (response?.status === "pending") {
+        await handlePaymentPending(
+          response,
+          vm.setPendingPayment,
+          setMainButtonParams,
+        );
       }
     } else {
       navigateToPayment();
     }
   }, [
     availablePaymentData,
-    navigate,
+    handleStudyRequest,
+    handlePayment,
+    handlePaymentSuccess,
+    vm.setPendingPayment,
     navigateToPayment,
-    personalDetails.name,
-    personalDetails.phone,
-    selectedPaymentData?.id,
-    state.price,
-    state.title,
-    vm,
   ]);
 
   useMainButton({
     text: mainButtonText,
-    onClick: handleMainButtonClick,
+    onClick: handleSubmit,
     isLoading,
   });
 

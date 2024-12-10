@@ -16,7 +16,11 @@ import { Payment } from "@a2seven/yoo-checkout";
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { PaymentComponent } from "@/ui/pages/payment/payment.component.tsx";
 import { usePersonalDetails } from "@/context/personal-details.context.tsx";
-import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
+
+import {
+  handlePaymentPending,
+  handleStudyRequest,
+} from "@/ui/pages/payment/utils/payment.ts";
 
 import "./payment.css";
 
@@ -83,13 +87,24 @@ export const PaymentPage = memo(() => {
     [vm],
   );
 
+  const createPaymentTokenWithValidation = useCallback(async () => {
+    const payment_token = await vm.createPaymentToken(paymentDetails);
+
+    if (!isTokenResponseSuccessful(payment_token)) {
+      const fieldErrors = mapErrorsToFields(payment_token);
+
+      setFieldError("Ошибка при создании платежа. Проверьте данные карты");
+      setErrors(fieldErrors);
+
+      throw new Error("Payment token creation failed");
+    }
+
+    return payment_token;
+  }, [vm, paymentDetails]);
+
   const handlePaymentResponse = useCallback(
     async (response: Payment | undefined) => {
-      await addStudyRequestFromApi({
-        fullName: personalDetails.name,
-        eMail: personalDetails.email,
-        phone: personalDetails.phone,
-      });
+      await handleStudyRequest(personalDetails);
 
       if (response?.status === "succeeded") {
         setIsLoading(false);
@@ -98,40 +113,21 @@ export const PaymentPage = memo(() => {
       }
 
       if (response?.status === "pending") {
-        const confirmation_url = response.confirmation.confirmation_url;
-
-        await vm.setPendingPayment(response);
-
-        setMainButtonParams({
-          isVisible: false,
-        });
-
-        if (confirmation_url) {
-          window.location.href = confirmation_url;
-        }
+        await handlePaymentPending(
+          response,
+          vm.setPendingPayment,
+          setMainButtonParams,
+        );
       }
     },
-    [
-      navigate,
-      personalDetails.email,
-      personalDetails.name,
-      personalDetails.phone,
-      setPaymentData,
-      vm,
-    ],
+    [navigate, personalDetails, setPaymentData, vm.setPendingPayment],
   );
 
   const handleSubmit = useCallback(async () => {
     try {
-      const payment_token = await vm.createPaymentToken(paymentDetails);
+      setIsLoading(true);
 
-      if (!isTokenResponseSuccessful(payment_token)) {
-        const fieldErrors = mapErrorsToFields(payment_token);
-
-        setFieldError("Ошибка при создании платежа. Проверьте данные карты");
-        setErrors(fieldErrors);
-        return;
-      }
+      const payment_token = await createPaymentTokenWithValidation();
 
       const payload = getPaymentPayload({
         payment_token,
@@ -141,22 +137,21 @@ export const PaymentPage = memo(() => {
         amount: state.price.toString(),
       });
 
-      setIsLoading(true);
       const response = await vm.createPayment(payload);
       await handlePaymentResponse(response);
     } catch (error: unknown) {
-      console.log(error);
+      console.error("Error during payment creation:", error);
       setFieldError("Ошибка при создании платежа. Проверьте данные карты");
     }
   }, [
     vm,
-    paymentDetails,
     personalDetails.phone,
     personalDetails.name,
     save_payment_method,
     state.title,
     state.price,
     handlePaymentResponse,
+    createPaymentTokenWithValidation,
   ]);
 
   const handleSavePaymentDetails = useCallback(() => {
