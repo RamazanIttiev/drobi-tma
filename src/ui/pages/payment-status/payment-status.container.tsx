@@ -21,24 +21,24 @@ export const PaymentStatusPage = () => {
   const navigate = useNavigate();
 
   const [payment, setPayment] = useState<Payment | undefined>(undefined);
-
+  console.log(payment);
   const setPaymentData = useCallback(
     async (response: Payment) => {
       const last4 = response.payment_method.card?.last4;
       const first6 = response.payment_method.card?.first6;
-      const type = response.payment_method.card?.card_type;
+      const bankCardType = response.payment_method.card?.card_type;
 
-      if (!last4 || !first6 || !type) {
+      if (!last4 || !first6 || !bankCardType) {
         return;
       }
 
       setPayment(response);
 
-      const paymentData: AvailablePaymentData = {
+      const paymentData: Omit<AvailablePaymentData, "paymentMethodType"> = {
         id: response.id,
         last4,
         first6,
-        type,
+        bankCardType,
       };
 
       await vm.addPaymentData(paymentData);
@@ -54,7 +54,10 @@ export const PaymentStatusPage = () => {
         if (pendingPayment?.id) {
           const payment = await vm.getPayment(pendingPayment.id);
 
-          if (payment?.status === "succeeded") {
+          if (
+            payment?.status === "succeeded" &&
+            payment.payment_method_data.type === "bank_card"
+          ) {
             await setPaymentData(payment);
           }
         }
@@ -70,5 +73,5 @@ export const PaymentStatusPage = () => {
 
   useMainButton({ onClick: () => navigate("/"), text: "Домой" });
 
-  return <PaymentStatusComponent status={state.status ?? payment?.status} />;
+  return <PaymentStatusComponent status={payment?.status || state.status} />;
 };

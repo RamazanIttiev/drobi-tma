@@ -46,26 +46,6 @@ export const PaymentMethodSelectModalComponent = ({
         footer={"Тут отображаются сохраненные карты после совершенного платежа"}
       >
         <form>
-          <Cell
-            key={selectedOption?.id}
-            Component="label"
-            before={
-              <Selectable
-                checked={selectedOption?.paymentMethodType === "sberbank"}
-                name="group"
-                value={"SberPay"}
-                onChange={() =>
-                  onOptionSelect({
-                    id: "SberPay",
-                    paymentMethodType: "sberbank",
-                  })
-                }
-              />
-            }
-            multiline
-          >
-            SberPay
-          </Cell>
           {options?.map((option) => {
             return (
               <Cell
@@ -81,7 +61,9 @@ export const PaymentMethodSelectModalComponent = ({
                 }
                 multiline
               >
-                {`${option.first6} ** **** ${option.last4}`}
+                {option.paymentMethodType === "sberbank"
+                  ? "SberPay"
+                  : `${option.first6} ** **** ${option.last4}`}
               </Cell>
             );
           })}

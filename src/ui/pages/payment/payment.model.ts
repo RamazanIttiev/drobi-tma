@@ -8,8 +8,8 @@ export interface PaymentDetails {
   cvc: string;
 }
 
-export type PaymentMethodType = "bank_card" | "sberbank" | "sbp";
-export type PaymentConfirmationType = "redirect" | "mobile_application" | "qr";
+export type PaymentMethodType = "bank_card" | "sberbank";
+export type PaymentConfirmationType = "redirect" | "qr";
 
 interface PaymentConfirmation {
   type: PaymentConfirmationType;

@@ -54,8 +54,6 @@ export const CourseCheckoutPage = memo(() => {
       switch (selectedPaymentData.paymentMethodType) {
         case "sberbank":
           return "SberPay";
-        case "sbp":
-          return "СБП";
         case "bank_card":
           return `**** ${selectedPaymentData.last4}`;
       }
@@ -147,7 +145,7 @@ export const CourseCheckoutPage = memo(() => {
     const fetchPaymentData = async () => {
       const data = await vm.getPaymentData();
       if (data) {
-        setAvailablePaymentData(data);
+        setAvailablePaymentData([DEFAULT_PAYMENT_METHOD, ...data]);
       } else {
         setAvailablePaymentData([DEFAULT_PAYMENT_METHOD]);
       }
