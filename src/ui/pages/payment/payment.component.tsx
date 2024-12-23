@@ -3,7 +3,6 @@ import {
   Button,
   Cell,
   IconButton,
-  Input,
   List,
   Section,
   Snackbar,
@@ -12,13 +11,14 @@ import {
 import { PatternFormat } from "react-number-format";
 import { PaymentDetails } from "@/ui/pages/payment/payment.model.ts";
 import { FieldErrors } from "@/common/models.ts";
+import { Input } from "@/ui/atoms/input/input.component.tsx";
+import React from "react";
 
 import IconEyeOpened from "@/assets/icons/eye-opened.svg";
 import IconEyeClosed from "@/assets/icons/eye-closed.svg";
 import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
-import React from "react";
 
 interface PaymentPageProps {
   errors: FieldErrors;
@@ -52,10 +52,10 @@ export const PaymentComponent = (props: PaymentPageProps) => {
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
       <List>
-        <Section header="Данные карты">
+        <Section header="Данные карты" className={"payment__section"}>
           <PatternFormat
             customInput={Input}
-            className={"payment__card-number"}
+            className={"payment__input payment__card-number"}
             format={"#### #### #### ####"}
             required
             status={errors["cardNumber"] ? "error" : "default"}
@@ -72,6 +72,7 @@ export const PaymentComponent = (props: PaymentPageProps) => {
             <PatternFormat
               customInput={Input}
               format={"##/##"}
+              className={"payment__input"}
               required
               status={errors["expiryDate"] ? "error" : "default"}
               inputMode={"numeric"}
@@ -85,6 +86,7 @@ export const PaymentComponent = (props: PaymentPageProps) => {
             <PatternFormat
               customInput={Input}
               format={"###"}
+              className={"payment__input"}
               required
               status={errors["cvc"] ? "error" : "default"}
               type={isCVCVisible ? "text" : "password"}

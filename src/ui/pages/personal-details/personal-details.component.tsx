@@ -3,12 +3,12 @@ import { Page } from "@/ui/organisms/page/page";
 import {
   Button,
   Cell,
-  Input,
   List,
   Section,
   Switch,
 } from "@telegram-apps/telegram-ui";
 import { PatternFormat } from "react-number-format";
+import { Input } from "@/ui/atoms/input/input.component.tsx";
 
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 import { FieldErrors } from "@/common/models.ts";

@@ -1,4 +1,8 @@
 .payment {
+  &__input {
+    background: var(--tgui--section_bg_color) !important;
+  }
+
   &__card-number {
     svg {
       fill: var(--tgui--accent_text_color);

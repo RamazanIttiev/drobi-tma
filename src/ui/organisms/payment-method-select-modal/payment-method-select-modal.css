@@ -1,11 +1,27 @@
 .paymentMethodSelectModal {
+  &__header {
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    background: var(--tgui--section_bg_color);
+  }
+
+  &__overlay {
+    background: rgba(0, 0, 0, 0.7) !important;
+  }
+
   &__section {
+    background: var(--tgui--section_bg_color);
     padding-bottom: 1rem;
   }
 
   &__link {
     color: var(--tgui--text_color);
     text-decoration: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
   }
 
   &__caption {

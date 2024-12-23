@@ -4,8 +4,12 @@
   gap: 1rem;
 
   &__cell {
-    background: var(--tgui--card_bg_color);
+    background: var(--tgui--section_bg_color) !important;
     border-radius: 8px;
     padding: 0.5rem 1rem !important;
+
+    &:hover {
+      background: var(--tgui--tertiary_bg_color) !important;
+    }
   }
 }

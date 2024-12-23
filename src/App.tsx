@@ -2,6 +2,8 @@ import {
   miniApp,
   mountSecondaryButton,
   onSecondaryButtonClick,
+  setMiniAppBottomBarColor,
+  setMiniAppHeaderColor,
   setSecondaryButtonParams,
   useLaunchParams,
   useSignal,
@@ -47,10 +49,19 @@ const router = createBrowserRouter(
 );
 
 export function App() {
+  const { themeParams } = useLaunchParams();
   const lp = useLaunchParams();
   const isDark = useSignal(miniApp.isDark);
 
   const { getItem, getKeys, deleteItem } = useCloudStorage();
+
+  useEffect(() => {
+    console.log(themeParams);
+    if (themeParams.secondaryBgColor) {
+      setMiniAppHeaderColor(themeParams.secondaryBgColor);
+      setMiniAppBottomBarColor(themeParams.secondaryBgColor);
+    }
+  }, [themeParams]);
 
   useEffect(() => {
     if (import.meta.env.MODE === "development") {
