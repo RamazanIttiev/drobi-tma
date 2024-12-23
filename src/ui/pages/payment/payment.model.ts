@@ -1,5 +1,6 @@
-import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
 import { BASE_CURRENCY, FieldErrors } from "@/common/models.ts";
+import { IReceipt, IVatData } from "@a2seven/yoo-checkout/build/types";
+import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 
 export interface PaymentDetails {
   cardNumber: string;
@@ -7,9 +8,50 @@ export interface PaymentDetails {
   cvc: string;
 }
 
-export interface CreatePaymentPayload extends ICreatePayment {}
-export interface CreatePaymentResponse {
-  data: Payment;
+export type PaymentMethodType = "bank_card" | "sberbank" | "sbp";
+export type PaymentConfirmationType = "redirect" | "mobile_application" | "qr";
+
+interface PaymentConfirmation {
+  type: PaymentConfirmationType;
+  locale?: string;
+  confirmation_token?: string;
+  confirmation_data?: string;
+  confirmation_url?: string;
+  enforce?: boolean;
+  return_url?: string;
+}
+
+interface PaymentMethodData {
+  type: PaymentMethodType;
+  login?: string;
+  phone?: string;
+  payment_purpose?: string;
+  vat_data?: IVatData;
+  card?: {
+    number: string;
+    expiry_month: string;
+    expiry_year: string;
+    cardholder: string;
+    csc: string;
+  };
+  payment_data?: string;
+  payment_method_token?: string;
+}
+
+export interface CreatePayment {
+  amount: {
+    value: string;
+    currency: string;
+  };
+  receipt: IReceipt;
+  capture: boolean;
+  confirmation: PaymentConfirmation;
+  description: string;
+  merchant_customer_id: string;
+  save_payment_method?: boolean;
+  payment_token?: string;
+  payment_method_id?: string;
+  payment_method_data?: PaymentMethodData;
 }
 
 interface TokenSuccessResponse {
@@ -42,10 +84,27 @@ export type TokenResponse = TokenSuccessResponse | TokenErrorResponse;
 
 export interface AvailablePaymentData {
   id: string;
-  last4: string;
-  first6: string;
-  type: string;
+  last4?: string;
+  first6?: string;
+  bankCardType?: string;
+  paymentMethodType: PaymentMethodType;
 }
+
+interface DefaultPaymentPayload {
+  state: any;
+  personalDetails: PersonalDetails;
+}
+
+interface InitialPaymentPayload extends DefaultPaymentPayload {
+  paymentToken: string;
+  save_payment_method: boolean;
+}
+
+interface SavedCardPaymentPayload extends DefaultPaymentPayload {
+  payment_method_id: string;
+}
+
+interface SberPayPaymentPayload extends DefaultPaymentPayload {}
 
 const fieldErrorMapping: Record<string, string> = {
   invalid_number: "cardNumber",
@@ -69,51 +128,109 @@ export const mapErrorsToFields = (
   return fieldErrors;
 };
 
-export const getPaymentPayload = ({
-  payment_token,
-  selectedPaymentData,
-  amount,
-  description,
-  merchant_customer_id,
-  save_payment_method,
-  payment_method_id,
-  metadata,
-}: Omit<ICreatePayment, "amount"> & {
-  amount: string;
-  selectedPaymentData?: AvailablePaymentData;
-}): ICreatePayment => {
-  const payload: ICreatePayment = {
-    payment_token,
+const getDefaultPayload = ({
+  state,
+  personalDetails,
+}: DefaultPaymentPayload): CreatePayment => {
+  return {
+    capture: true,
+    receipt: getPaymentReceipt(state, personalDetails),
     amount: {
-      value: amount,
+      value: state.price.toString(),
       currency: BASE_CURRENCY,
     },
-    description,
-    merchant_customer_id,
-    capture: true,
+    merchant_customer_id: personalDetails.phone,
+    description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
     confirmation: {
       type: "redirect",
       return_url: import.meta.env.VITE_PAYMENT_STATUS_URL,
     },
-    save_payment_method,
-    payment_method_id,
-    metadata,
   };
+};
 
-  if (payment_token && !selectedPaymentData?.id) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { payment_method_id, ...initialPayment } = payload;
-    return initialPayment;
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { payment_token, ...savedPayment } = payload;
+export const getInitialPaymentPayload = ({
+  state,
+  personalDetails,
+  paymentToken,
+  save_payment_method,
+}: InitialPaymentPayload): CreatePayment => {
+  const payload = getDefaultPayload({
+    state,
+    personalDetails,
+  });
 
-    return savedPayment;
-  }
+  return {
+    payment_token: paymentToken,
+    save_payment_method,
+    ...payload,
+  };
+};
+
+export const getSavedCardPaymentPayload = ({
+  state,
+  personalDetails,
+  payment_method_id,
+}: SavedCardPaymentPayload): CreatePayment => {
+  const payload = getDefaultPayload({
+    state,
+    personalDetails,
+  });
+
+  return {
+    payment_method_id,
+    ...payload,
+  };
+};
+
+export const getSberPayPaymentPayload = ({
+  state,
+  personalDetails,
+}: SberPayPaymentPayload): CreatePayment => {
+  const payload = getDefaultPayload({
+    state,
+    personalDetails,
+  });
+
+  return {
+    payment_method_data: {
+      type: "sberbank",
+    },
+    ...payload,
+  };
+};
+
+const getPaymentReceipt = (
+  state: any,
+  personalDetails: PersonalDetails,
+): IReceipt => {
+  return {
+    customer: {
+      email: personalDetails.email,
+      phone: personalDetails.phone,
+    },
+    items: [
+      {
+        description: state.title,
+        amount: {
+          value: state.price.toString(),
+          currency: BASE_CURRENCY,
+        },
+        vat_code: 1,
+        quantity: "1",
+        payment_subject: "service",
+        payment_mode: "full_payment",
+      },
+    ],
+  };
 };
 
 export const isTokenResponseSuccessful = (
   response: string | TokenErrorResponse,
 ): response is string => {
   return typeof response === "string";
+};
+
+export const DEFAULT_PAYMENT_METHOD: AvailablePaymentData = {
+  id: "SberPay",
+  paymentMethodType: "sberbank",
 };

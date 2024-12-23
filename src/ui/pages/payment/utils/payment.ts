@@ -7,19 +7,22 @@ export const handlePaymentPending = async (
   setPendingPayment: (payment: Payment) => Promise<void>,
   setMainButtonParams: (params: { isVisible: boolean }) => void,
 ) => {
-  const confirmation_url = response.confirmation.confirmation_url;
+  const confirmation_url =
+    response.confirmation.confirmation_url ||
+    response.confirmation.confirmation_data;
 
-  // Store pending payment
-  await setPendingPayment(response);
+  try {
+    await setPendingPayment(response);
 
-  // Update main button state
-  setMainButtonParams({
-    isVisible: false,
-  });
+    setMainButtonParams({
+      isVisible: false,
+    });
 
-  // Redirect if confirmation URL exists
-  if (confirmation_url) {
-    window.location.href = confirmation_url;
+    if (confirmation_url) {
+      window.location.href = confirmation_url;
+    }
+  } catch (e) {
+    console.error(e);
   }
 };
 

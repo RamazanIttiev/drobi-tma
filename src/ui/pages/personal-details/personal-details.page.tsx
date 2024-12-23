@@ -42,7 +42,11 @@ export const PersonalDetailsPage = () => {
 
   return (
     <>
-      <PersonalDetailsContainer errors={errors} setErrors={setErrors} />
+      <PersonalDetailsContainer
+        errors={errors}
+        setErrors={setErrors}
+        handleSubmit={handleSubmit}
+      />
       {errorMessage && (
         <Snackbar
           children={errorMessage}

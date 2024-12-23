@@ -9,9 +9,9 @@ interface PersonalDetailsContextType {
 }
 
 const defaultPersonalDetails: PersonalDetails = {
-  name: "",
-  email: "",
-  phone: "",
+  name: "dwdwdw",
+  email: "ram@gmail.com",
+  phone: "9992060876",
 };
 
 const PersonalDetailsContext = createContext<PersonalDetailsContextType>({

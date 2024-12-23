@@ -1,11 +1,12 @@
 import {
   AvailablePaymentData,
+  CreatePayment,
   PaymentDetails,
   TokenErrorResponse,
   TokenResponse,
 } from "@/ui/pages/payment/payment.model.ts";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
-import { ICreatePayment, Payment } from "@a2seven/yoo-checkout";
+import { Payment } from "@a2seven/yoo-checkout";
 import { createPaymentFromApi } from "@/services/payment/create-payment.ts";
 import { getPaymentFromApi } from "@/services/payment/get-payment.ts";
 
@@ -20,7 +21,7 @@ interface PaymentViewModel {
   createPaymentToken: (
     paymentDetails: PaymentDetails,
   ) => Promise<string | TokenErrorResponse>;
-  createPayment: (payload: ICreatePayment) => Promise<Payment | undefined>;
+  createPayment: (payload: CreatePayment) => Promise<Payment | undefined>;
 }
 
 const checkoutYooKassa = window.YooMoneyCheckout(
@@ -95,7 +96,7 @@ export const usePaymentViewModel = (): PaymentViewModel => {
       );
   };
 
-  const createPayment = async (payload: ICreatePayment) => {
+  const createPayment = async (payload: CreatePayment) => {
     return await createPaymentFromApi(payload);
   };
 

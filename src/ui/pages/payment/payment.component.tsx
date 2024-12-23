@@ -1,5 +1,6 @@
 import { Page } from "@/ui/organisms/page/page";
 import {
+  Button,
   Cell,
   IconButton,
   Input,
@@ -17,6 +18,7 @@ import IconEyeClosed from "@/assets/icons/eye-closed.svg";
 import IconCard from "@/assets/icons/card-icon.svg";
 
 import "./payment.css";
+import React from "react";
 
 interface PaymentPageProps {
   errors: FieldErrors;
@@ -25,6 +27,7 @@ interface PaymentPageProps {
   save_payment_method: boolean;
   isCVCVisible: boolean;
   resetFieldError: () => void;
+  handleSubmit: () => Promise<void>;
   handleTogglePassword: () => void;
   handleSavePaymentDetails: () => void;
   handleChange: (
@@ -39,6 +42,7 @@ export const PaymentComponent = (props: PaymentPageProps) => {
     save_payment_method,
     isCVCVisible,
     fieldError,
+    handleSubmit,
     handleChange,
     resetFieldError,
     handleTogglePassword,
@@ -114,6 +118,11 @@ export const PaymentComponent = (props: PaymentPageProps) => {
           </Cell>
         </Section>
       </List>
+      {import.meta.env.DEV && (
+        <Button stretched onClick={handleSubmit}>
+          Оплатить
+        </Button>
+      )}
       {fieldError && (
         <Snackbar
           children={fieldError}

@@ -12,7 +12,13 @@ import {
   types,
 } from "@/ui/pages/course/course.model.ts";
 import { Image } from "@telegram-apps/telegram-ui/dist/components/Blocks/Image/Image";
-import { Caption, LargeTitle, List, Section } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  Caption,
+  LargeTitle,
+  List,
+  Section,
+} from "@telegram-apps/telegram-ui";
 import { Select } from "@/ui/atoms/select/select.tsx";
 
 import "./course.css";
@@ -24,6 +30,7 @@ interface CourseComponentProps {
   onLevelChange: (value: CourseLevel) => void;
   onTypeChange: (value: CourseType) => void;
   onDurationChange: (value: CourseDuration) => void;
+  navigateToCheckout: () => void;
 }
 
 export const CourseComponent = (props: CourseComponentProps) => {
@@ -99,6 +106,9 @@ export const CourseComponent = (props: CourseComponentProps) => {
               ))}
             </Select>
           </Section>
+          <Button onClick={props.navigateToCheckout} stretched>
+            К оплате
+          </Button>
         </form>
       </List>
     </Page>

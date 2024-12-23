@@ -11,7 +11,7 @@ export const fetchCourses = async (): Promise<Course[]> => {
         headers: { ...ngrokHeader },
       },
     );
-    console.log(response);
+
     return response.data;
   } catch (err) {
     if (

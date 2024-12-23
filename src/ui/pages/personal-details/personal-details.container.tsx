@@ -7,12 +7,13 @@ import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 interface PersonalDetailsContainerProps {
   errors?: FieldErrors;
   setErrors?: (errors: FieldErrors) => void;
+  handleSubmit?: () => void;
 }
 
 export const PersonalDetailsContainer = (
   props: PersonalDetailsContainerProps,
 ) => {
-  const { errors, setErrors } = props;
+  const { errors, setErrors, handleSubmit } = props;
 
   const {
     personalDetails,
@@ -44,6 +45,7 @@ export const PersonalDetailsContainer = (
       errors={errors}
       personalDetails={personalDetails}
       handleChange={handleChange}
+      handleSubmit={handleSubmit}
       handleSavePersonalDetails={handleSavePersonalDetails}
     />
   );

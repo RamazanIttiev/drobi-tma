@@ -1,5 +1,11 @@
 import { Page } from "@/ui/organisms/page/page.tsx";
-import { Caption, List, Section, Text } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  Caption,
+  List,
+  Section,
+  Text,
+} from "@telegram-apps/telegram-ui";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
@@ -14,6 +20,7 @@ export interface CourseCheckoutComponentProps {
   showPaymentDataSection?: boolean;
   openModal?: () => void;
   navigateToPersonalData?: () => void;
+  handleSubmit: () => Promise<void>;
 }
 
 export const CourseCheckoutComponent = (
@@ -92,6 +99,9 @@ export const CourseCheckoutComponent = (
             </button>
           </Section>
         )}
+        <Button onClick={props.handleSubmit} stretched>
+          Оплатить
+        </Button>
       </List>
     </Page>
   );

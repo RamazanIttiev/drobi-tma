@@ -98,6 +98,7 @@ export const CoursePage = () => {
       onTypeChange={onTypeChange}
       onLevelChange={onLevelChange}
       onQuantityChange={onQuantityChange}
+      navigateToCheckout={navigateToCheckout}
     />
   );
 };

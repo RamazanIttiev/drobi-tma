@@ -1,6 +1,13 @@
 import React from "react";
 import { Page } from "@/ui/organisms/page/page";
-import { Cell, Input, List, Section, Switch } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  Cell,
+  Input,
+  List,
+  Section,
+  Switch,
+} from "@telegram-apps/telegram-ui";
 import { PatternFormat } from "react-number-format";
 
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
@@ -16,6 +23,7 @@ interface PersonalDataPageProps {
     field: keyof PersonalDetails,
   ) => (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSavePersonalDetails: () => void;
+  handleSubmit?: () => void;
 }
 
 export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
@@ -24,6 +32,7 @@ export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
     personalDetails,
     savePersonalDetails,
     handleChange,
+    handleSubmit,
     handleSavePersonalDetails,
   } = props;
 
@@ -80,6 +89,11 @@ export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
             Сохранить данные
           </Cell>
         </Section>
+        {import.meta.env.DEV && (
+          <Button stretched onClick={handleSubmit}>
+            Оплатить
+          </Button>
+        )}
       </List>
     </Page>
   );

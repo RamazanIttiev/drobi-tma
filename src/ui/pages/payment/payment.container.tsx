@@ -5,7 +5,7 @@ import { usePayment } from "@/context/payment-data.context.tsx";
 import { setMainButtonParams } from "@telegram-apps/sdk-react";
 import {
   AvailablePaymentData,
-  getPaymentPayload,
+  getInitialPaymentPayload,
   isTokenResponseSuccessful,
   mapErrorsToFields,
 } from "@/ui/pages/payment/payment.model.ts";
@@ -79,7 +79,8 @@ export const PaymentPage = memo(() => {
         id: response.id,
         last4,
         first6,
-        type,
+        bankCardType: type,
+        paymentMethodType: "bank_card",
       };
 
       await vm.addPaymentData(paymentData);
@@ -127,14 +128,13 @@ export const PaymentPage = memo(() => {
     try {
       setIsLoading(true);
 
-      const payment_token = await createPaymentTokenWithValidation();
+      const paymentToken = await createPaymentTokenWithValidation();
 
-      const payload = getPaymentPayload({
-        payment_token,
-        merchant_customer_id: personalDetails.phone,
+      const payload = getInitialPaymentPayload({
+        paymentToken,
+        state,
+        personalDetails,
         save_payment_method,
-        description: `${personalDetails.name}: ${personalDetails.phone} (${state.title})`,
-        amount: state.price.toString(),
       });
 
       const response = await vm.createPayment(payload);
@@ -144,14 +144,12 @@ export const PaymentPage = memo(() => {
       setFieldError("Ошибка при создании платежа. Проверьте данные карты");
     }
   }, [
-    vm,
-    personalDetails.phone,
-    personalDetails.name,
-    save_payment_method,
-    state.title,
-    state.price,
-    handlePaymentResponse,
     createPaymentTokenWithValidation,
+    personalDetails,
+    state,
+    save_payment_method,
+    vm,
+    handlePaymentResponse,
   ]);
 
   const handleSavePaymentDetails = useCallback(() => {
@@ -166,12 +164,13 @@ export const PaymentPage = memo(() => {
 
   return (
     <PaymentComponent
-      paymentDetails={paymentDetails}
       errors={errors}
       fieldError={fieldError}
       isCVCVisible={isCVCVisible}
-      save_payment_method={save_payment_method}
+      handleSubmit={handleSubmit}
       handleChange={handleChange}
+      paymentDetails={paymentDetails}
+      save_payment_method={save_payment_method}
       handleTogglePassword={handleTogglePassword}
       resetFieldError={() => setFieldError(null)}
       handleSavePaymentDetails={handleSavePaymentDetails}
