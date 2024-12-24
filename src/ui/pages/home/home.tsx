@@ -1,15 +1,12 @@
 import { Page } from "@/ui/organisms/page/page.tsx";
 import { Link } from "@/ui/atoms/link/link.tsx";
-import { Course } from "@/ui/pages/course/course.model.ts";
-import { useLoaderData } from "react-router-dom";
 
 import { Avatar, Cell } from "@telegram-apps/telegram-ui";
+import { courses } from "@/mocks/courses.ts";
 
 import "./home.css";
 
 export const HomePage = () => {
-  const courses = useLoaderData() as Course[];
-
   return (
     <Page back={false}>
       <div className="home">

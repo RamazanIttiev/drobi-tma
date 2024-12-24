@@ -19,8 +19,6 @@ import {
 import { CourseCheckoutPage } from "@/ui/pages/course-checkout/course-checkout.container.tsx";
 import { HomePage } from "@/ui/pages/home/home.tsx";
 import { CoursePage } from "@/ui/pages/course/course.container.tsx";
-import { fetchCourses } from "@/services/courses/fetchCourses.ts";
-import { fetchCourse } from "@/services/courses/fetchCourse.ts";
 import { PaymentPage } from "@/ui/pages/payment/payment.container.tsx";
 import { PaymentProvider } from "@/context/payment-data.context.tsx";
 import { PaymentStatusPage } from "@/ui/pages/payment-status/payment-status.container.tsx";
@@ -33,12 +31,8 @@ import { CloudStorageKeys } from "@/common/models.ts";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route index element={<HomePage />} loader={fetchCourses} />
-      <Route
-        path="subject/:id"
-        element={<CoursePage />}
-        loader={({ params }) => fetchCourse(params.id)}
-      />
+      <Route index element={<HomePage />} />
+      <Route path="subject/:id" element={<CoursePage />} />
       <Route path="checkout/:id" element={<CourseCheckoutPage />} />
       <Route path="payment-details" element={<PaymentPage />} />
       <Route path="personal-details" element={<PersonalDetailsPage />} />

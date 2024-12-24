@@ -1,8 +1,7 @@
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import {
   calculatePrice,
-  Course,
   CourseConfig,
   CourseDuration,
   CourseLevel,
@@ -10,12 +9,16 @@ import {
   CourseType,
 } from "@/ui/pages/course/course.model.ts";
 import { useMainButton } from "@/hooks/use-main-button.ts";
+import { CourseComponent } from "@/ui/pages/course/course.component.tsx";
+import { courses } from "@/mocks/courses.ts";
 
 import "./course.css";
-import { CourseComponent } from "@/ui/pages/course/course.component.tsx";
 
 export const CoursePage = () => {
-  const course = useLoaderData() as Course;
+  const location = useLocation();
+  const courseId = location.state;
+
+  const course = courses.find((course) => course.id === courseId);
   const navigate = useNavigate();
 
   const [config, setConfig] = useState<CourseConfig>({
@@ -48,14 +51,14 @@ export const CoursePage = () => {
   }, [quantity, type]);
 
   const navigateToCheckout = useCallback(() => {
-    navigate(`/checkout/${course.id}`, {
+    navigate(`/checkout/${course?.id}`, {
       state: {
-        title: course.title,
+        title: course?.title,
         price,
         config,
       },
     });
-  }, [config, course.id, course.title, navigate, price]);
+  }, [config, course?.id, course?.title, navigate, price]);
 
   useMainButton({
     text: `К оплате ${price.toString()} ₽`,
@@ -91,14 +94,16 @@ export const CoursePage = () => {
   };
 
   return (
-    <CourseComponent
-      course={course}
-      config={config}
-      onDurationChange={onDurationChange}
-      onTypeChange={onTypeChange}
-      onLevelChange={onLevelChange}
-      onQuantityChange={onQuantityChange}
-      navigateToCheckout={navigateToCheckout}
-    />
+    course && (
+      <CourseComponent
+        course={course}
+        config={config}
+        onDurationChange={onDurationChange}
+        onTypeChange={onTypeChange}
+        onLevelChange={onLevelChange}
+        onQuantityChange={onQuantityChange}
+        navigateToCheckout={navigateToCheckout}
+      />
+    )
   );
 };
