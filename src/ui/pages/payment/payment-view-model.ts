@@ -17,9 +17,7 @@ interface PaymentViewModel {
   setPaymentData: (data: AvailablePaymentData) => Promise<void | undefined>;
   setPendingPayment: (payment: Payment) => Promise<void | undefined>;
   deletePendingPayment: () => Promise<void | undefined>;
-  addPaymentData: (
-    data: Omit<AvailablePaymentData, "paymentMethodType">,
-  ) => Promise<void>;
+  addPaymentData: (data: AvailablePaymentData) => Promise<void>;
   createPaymentToken: (
     paymentDetails: PaymentDetails,
   ) => Promise<string | TokenErrorResponse>;
@@ -68,9 +66,7 @@ export const usePaymentViewModel = (): PaymentViewModel => {
     return deleteItem("pending_payment");
   };
 
-  const addPaymentData = async (
-    data: Omit<AvailablePaymentData, "paymentMethodType">,
-  ) => {
+  const addPaymentData = async (data: AvailablePaymentData) => {
     const existingData = await getPaymentData();
 
     const isDuplicate = existingData?.some(
