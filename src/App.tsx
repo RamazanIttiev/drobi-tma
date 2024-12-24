@@ -50,12 +50,13 @@ export function App() {
   const { getItem, getKeys, deleteItem } = useCloudStorage();
 
   useEffect(() => {
-    console.log(themeParams);
     if (themeParams.secondaryBgColor) {
       setMiniAppHeaderColor(themeParams.secondaryBgColor);
       setMiniAppBottomBarColor(themeParams.secondaryBgColor);
     }
   }, [themeParams]);
+
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (import.meta.env.MODE === "development") {

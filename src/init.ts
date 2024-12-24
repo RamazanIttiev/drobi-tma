@@ -1,9 +1,11 @@
 import {
   $debug,
   backButton,
+  disableVerticalSwipes,
   init as initSDK,
   initData,
   miniApp,
+  mountSwipeBehavior,
   themeParams,
   viewport,
 } from "@telegram-apps/sdk-react";
@@ -40,7 +42,13 @@ export function init(debug: boolean): void {
       console.error("Something went wrong mounting the viewport", e);
     })
     .then(() => {
+      viewport.expand();
       viewport.bindCssVars();
+      if (mountSwipeBehavior.isSupported()) {
+        mountSwipeBehavior();
+      }
+
+      disableVerticalSwipes();
     });
 
   // Define components-related CSS variables.
