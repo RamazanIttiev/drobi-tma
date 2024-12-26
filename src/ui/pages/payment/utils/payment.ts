@@ -1,6 +1,7 @@
 import { Payment } from "@a2seven/yoo-checkout";
 import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
+import { openLink } from "@telegram-apps/sdk-react";
 
 export const handlePaymentPending = async (
   response: Payment,
@@ -19,7 +20,7 @@ export const handlePaymentPending = async (
     });
 
     if (confirmation_url) {
-      window.location.href = confirmation_url;
+      openLink(confirmation_url);
     }
   } catch (e) {
     console.error(e);
