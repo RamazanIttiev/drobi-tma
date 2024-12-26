@@ -13,7 +13,9 @@ export const handlePaymentPending = async (
     response.confirmation.confirmation_data;
 
   try {
-    await setPendingPayment(response);
+    if (response.payment_method.type === "bank_card") {
+      await setPendingPayment(response);
+    }
 
     setMainButtonParams({
       isVisible: false,
