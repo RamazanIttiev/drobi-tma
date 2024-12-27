@@ -1,0 +1,13 @@
+{
+  "title": "Maths",
+  "description": "string",
+  "payload": "string",
+  "currency": "RUB",
+  "provider_token": "381764678:TEST:100607",
+  "prices": [
+    {
+      "label": "string",
+      "amount": "100000"
+    }
+  ]
+}
