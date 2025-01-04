@@ -14,5 +14,6 @@ RUN npm run build
 
 RUN npm prune --production
 
+EXPOSE 8080
 # Start the application
 CMD [ "node", "." ]

@@ -20,31 +20,15 @@ services:
   backend:
     build:
       context: ./backend
-    environment:
-      - PORT=3000
-      - DOMAIN=api.drobi-school-tg.ru
-      - NODE_ENV=production
-      - TELEGRAM_API_TOKEN=7732393445:AAGEofGQzv1cBS3GyV8PYg9WP9uAZTWXvFo
-      # TEST
-      #      - YOO_KASSA_SHOP_ID=489788
-      #      - YOO_KASSA_SECRET_KEY=test_giBS_YtTM-m0FZJTd-n_rWqCBUW9evd9nw9pzqQMs64
-      # PROD
-      - YOO_KASSA_SHOP_ID=442761
-      - YOO_KASSA_SECRET_KEY=live_rPHVjsFetKvSUtgTZFYv4_W_WJVmCgBKcB0UslUSxUc
-      - AIRTABLE_TOKEN=patZYS9IGZCng7Kn1.e948ed001154c94169f6092bed0608edf12be6c8c0554525062ba3a638b607fb
-      - AIRTABLE_BASE=appfqififykDH9NqA
-      - AIRTABLE_URL=https://api.airtable.com/v0/appfqififykDH9NqA
-      - HOLLIHOP_WEBHOOK_URL=https://campus-academy.t8s.ru/Api/V2
+    env_file:
+      - ./backend/.env
     networks:
       - dev
 
   frontend:
     build:
       context: ./frontend
-    environment:
-      - VITE_YOOKASSA_SHOP_ID=489788
-      - VITE_API_URL=https://api.drobi-school-tg.ru
-      - VITE_PAYMENT_STATUS_URL=t.me/DrobiTestbot/drobitest/payment-status
-      - VITE_IS_MOCK_API=true
+    env_file:
+        - ./frontend/.env
     networks:
       - dev
