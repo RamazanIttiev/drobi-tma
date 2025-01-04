@@ -1,8 +1,5 @@
 # Use a Node.js base image for building
-FROM node:alpine as build
-
-# Set the working directory
-WORKDIR /home/user/frontend-app
+FROM node:20-alpine as build
 
 # Copy package.json and package-lock.json
 COPY package.json yarn.lock ./
@@ -20,10 +17,9 @@ RUN yarn run build
 FROM nginx:alpine
 
 # Copy built files from the previous stage
-COPY --from=build /home/user/frontend-app/build /usr/share/nginx/html
+COPY --from=build frontend/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose HTTP and HTTPS ports
-EXPOSE 80 443
+EXPOSE 3000
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "nginx", "-g", "daemon off;" ]

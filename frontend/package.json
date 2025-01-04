@@ -5,16 +5,13 @@
   "type": "module",
   "homepage": "https://ramazanittiev.github.io/drobi-tma/",
   "scripts": {
-    "deploy": "node_modules/.bin/gh-pages -d dist",
-    "dev": "node_modules/.bin/vite",
     "build": "node_modules/.bin/tsc --noEmit && vite build",
+    "start:frontend": "node_modules/.bin/vite",
+    "push:cloud-frontend": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/drobi/frontend",
+
     "lint": "node_modules/.bin/eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "node_modules/.bin/eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
-    "preview": "node_modules/.bin/vite preview",
-    "predeploy": "npm run build",
-    "tunnel": "ngrok http --url=workable-publicly-quagga.ngrok-free.app https://localhost:5173/",
-    "push:cloud": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/home/user/frontend-app",
-    "enter:cloud": "ssh -i /Users/rittiev/.ssh/drobi.school root@62.217.180.79"
+    "preview": "node_modules/.bin/vite preview"
   },
   "dependencies": {
     "@telegram-apps/sdk-react": "^2.0.7",

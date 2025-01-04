@@ -1,0 +1,10 @@
+{
+  "name": "drobi_tma",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "push:cloud": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/drobi",
+    "enter:cloud": "ssh -i /Users/rittiev/.ssh/drobi.school root@62.217.180.79"
+  }
+}

@@ -12,10 +12,9 @@
   },
   "scripts": {
     "build": "rm -rf dist *.tsbuildinfo .eslintcache && tsc",
-    "build:watch": "lb-tsc --watch && node dist/bot.js",
-    "build:docker": "docker compose up --build",
-    "push:cloud": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/home/user/backend-app",
-    "enter:cloud": "ssh -i /Users/rittiev/.ssh/drobi.school root@62.217.180.79",
+    "start:backend": "npm run rebuild && PORT=8080 node -r source-map-support/register .",
+    "push:cloud-backend": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/drobi/backend",
+
     "lint": "npm run eslint && npm run prettier:check",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
     "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
@@ -29,8 +28,6 @@
     "migrate": "node ./dist/migrate",
     "preopenapi-spec": "npm run build",
     "openapi-spec": "node ./dist/openapi-spec",
-    "start:backend": "npm run rebuild && node -r source-map-support/register .",
-    "start:bot": "node dist/bot.js",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
     "rebuild": "npm run clean && npm run build"
   },
