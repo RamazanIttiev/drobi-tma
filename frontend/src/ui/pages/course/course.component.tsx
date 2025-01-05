@@ -106,9 +106,11 @@ export const CourseComponent = (props: CourseComponentProps) => {
               ))}
             </Select>
           </Section>
-          <Button onClick={props.navigateToCheckout} stretched>
-            К оплате
-          </Button>
+          {import.meta.env.MODE === "development" && (
+            <Button onClick={props.navigateToCheckout} stretched>
+              К оплате
+            </Button>
+          )}
         </form>
       </List>
     </Page>

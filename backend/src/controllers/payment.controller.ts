@@ -22,8 +22,14 @@ export class PaymentController {
           'Idempotence-Key': uuid(),
         },
         auth: {
-          username: process.env.YOO_KASSA_SHOP_ID ?? '',
-          password: process.env.YOO_KASSA_SECRET_KEY ?? '',
+          username:
+            (process.env.MODE === 'dev'
+              ? process.env.YOO_KASSA_SHOP_ID_TEST
+              : process.env.YOO_KASSA_SHOP_ID) ?? '',
+          password:
+            (process.env.MODE === 'dev'
+              ? process.env.YOO_KASSA_SECRET_KEY_TEST
+              : process.env.YOO_KASSA_SECRET_KEY) ?? '',
         },
       });
 
@@ -54,8 +60,14 @@ export class PaymentController {
             'Idempotence-Key': uuid(),
           },
           auth: {
-            username: process.env.YOO_KASSA_SHOP_ID ?? '',
-            password: process.env.YOO_KASSA_SECRET_KEY ?? '',
+            username:
+              (process.env.MODE === 'dev'
+                ? process.env.YOO_KASSA_SHOP_ID_TEST
+                : process.env.YOO_KASSA_SHOP_ID) ?? '',
+            password:
+              (process.env.MODE === 'dev'
+                ? process.env.YOO_KASSA_SECRET_KEY_TEST
+                : process.env.YOO_KASSA_SECRET_KEY) ?? '',
           },
         },
       );

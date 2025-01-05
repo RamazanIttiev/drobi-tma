@@ -99,9 +99,11 @@ export const CourseCheckoutComponent = (
             </button>
           </Section>
         )}
-        <Button onClick={props.handleSubmit} stretched>
-          Оплатить
-        </Button>
+        {import.meta.env.MODE === "development" && (
+          <Button onClick={props.handleSubmit} stretched>
+            Оплатить
+          </Button>
+        )}
       </List>
     </Page>
   );
