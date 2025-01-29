@@ -61,7 +61,7 @@ typings/
 *.iml
 # Transpiled JavaScript files from Typescript
 /dist
-/.idea
+.idea
 # Cache used by TypeScript's incremental build
 *.tsbuildinfo
 

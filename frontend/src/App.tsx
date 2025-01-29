@@ -56,8 +56,6 @@ export function App() {
     }
   }, [themeParams]);
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (import.meta.env.MODE === "development") {
       getKeys()?.then((res) => {

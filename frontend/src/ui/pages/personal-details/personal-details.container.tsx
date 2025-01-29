@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 import { FieldErrors } from "@/common/models.ts";
 import { PersonalDetailsComponent } from "@/ui/pages/personal-details/personal-details.component.tsx";
@@ -15,12 +15,7 @@ export const PersonalDetailsContainer = (
 ) => {
   const { errors, setErrors, handleSubmit } = props;
 
-  const {
-    personalDetails,
-    savePersonalDetails,
-    setPersonalDetails,
-    setSavePersonalDetails,
-  } = usePersonalDetails();
+  const { personalDetails, setPersonalDetails } = usePersonalDetails();
 
   const handleChange =
     (field: keyof PersonalDetails) =>
@@ -36,17 +31,12 @@ export const PersonalDetailsContainer = (
       });
     };
 
-  const handleSavePersonalDetails = useCallback(() => {
-    setSavePersonalDetails(!savePersonalDetails);
-  }, [savePersonalDetails, setSavePersonalDetails]);
-
   return (
     <PersonalDetailsComponent
       errors={errors}
       personalDetails={personalDetails}
       handleChange={handleChange}
       handleSubmit={handleSubmit}
-      handleSavePersonalDetails={handleSavePersonalDetails}
     />
   );
 };

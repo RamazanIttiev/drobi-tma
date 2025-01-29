@@ -2,23 +2,22 @@ import React, { createContext, useContext, useState } from "react";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 
 interface PersonalDetailsContextType {
+  // personalDetailsFromCloud: PersonalDetails;
   personalDetails: PersonalDetails;
-  savePersonalDetails: boolean;
+  // savePersonalDetails: boolean;
   setPersonalDetails: (details: PersonalDetails) => void;
-  setSavePersonalDetails: (value: boolean) => void;
+  // setSavePersonalDetails: (value: boolean) => void;
 }
 
 const defaultPersonalDetails: PersonalDetails = {
-  name: "dwdwdw",
-  email: "ram@gmail.com",
-  phone: "9992060876",
+  name: "",
+  email: "",
+  phone: "",
 };
 
 const PersonalDetailsContext = createContext<PersonalDetailsContextType>({
   personalDetails: defaultPersonalDetails,
-  savePersonalDetails: true,
   setPersonalDetails: () => {},
-  setSavePersonalDetails: () => {},
 });
 
 export const PersonalDetailsProvider: React.FC<{
@@ -28,15 +27,11 @@ export const PersonalDetailsProvider: React.FC<{
     defaultPersonalDetails,
   );
 
-  const [savePersonalDetails, setSavePersonalDetails] = useState<boolean>(true);
-
   return (
     <PersonalDetailsContext.Provider
       value={{
         personalDetails,
-        savePersonalDetails,
         setPersonalDetails,
-        setSavePersonalDetails,
       }}
     >
       {children}

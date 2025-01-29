@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   PersonalDetails,
   validateField,
@@ -17,7 +17,7 @@ export const PersonalDetailsPage = () => {
 
   const { personalDetails } = usePersonalDetails();
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(async () => {
     const newErrors: FieldErrors = {};
 
     Object.entries(personalDetails).forEach(([field, value]) => {
@@ -33,10 +33,9 @@ export const PersonalDetailsPage = () => {
       return;
     }
 
-    console.log("Saving personal details:", personalDetails);
     setErrors({});
     navigate(-1);
-  };
+  }, [navigate, personalDetails]);
 
   useMainButton({ onClick: handleSubmit, text: "Сохранить" });
 

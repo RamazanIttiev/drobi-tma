@@ -4,7 +4,8 @@ export type CloudStorageKeys =
   | "payment_token"
   | "payment_data"
   | "selected_payment_data"
-  | "pending_payment";
+  | "pending_payment"
+  | "personal_details";
 
 export const ngrokHeader =
   import.meta.env.MODE === "development"
