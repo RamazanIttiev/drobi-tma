@@ -16,6 +16,7 @@ import {
 import { CourseCheckoutComponent } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
 import { PaymentMethodSelectModalComponent } from "@/ui/organisms/payment-method-select-modal/payment-method-select-modal.component.tsx";
 import { Payment } from "@a2seven/yoo-checkout";
+import { Snackbar } from "@telegram-apps/telegram-ui";
 
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
@@ -45,6 +46,10 @@ export const CourseCheckoutPage = memo(() => {
   const [selectedPaymentData, setSelectedPaymentData] = useState<
     AvailablePaymentData | undefined
   >(DEFAULT_PAYMENT_METHOD);
+
+  const [personalDetailsError, setPersonalDetailsError] = useState<
+    string | undefined
+  >(undefined);
 
   const vm = usePaymentViewModel();
   const { personalDetails } = usePersonalDetails();
@@ -111,27 +116,34 @@ export const CourseCheckoutPage = memo(() => {
   }, [selectedPaymentData, state, personalDetails, vm]);
 
   const handleSubmit = useCallback(async () => {
-    setIsLoading(true);
+    if (personalDetails.name.length === 0)
+      setPersonalDetailsError("Зполните личные данные");
 
-    setIsModalOpen(false);
+    if (!personalDetailsError) {
+      setIsLoading(true);
 
-    await handleStudyRequest();
+      setIsModalOpen(false);
 
-    const response = await handlePayment();
+      await handleStudyRequest();
 
-    if (response?.status === "succeeded") {
-      handlePaymentSuccess(response);
-    } else if (response?.status === "pending") {
-      await handlePaymentPending(
-        response,
-        vm.setPendingPayment,
-        setMainButtonParams,
-      );
+      const response = await handlePayment();
+
+      if (response?.status === "succeeded") {
+        handlePaymentSuccess(response);
+      } else if (response?.status === "pending") {
+        await handlePaymentPending(
+          response,
+          vm.setPendingPayment,
+          setMainButtonParams,
+        );
+      }
     }
   }, [
+    personalDetails.name.length,
+    personalDetailsError,
+    handleStudyRequest,
     handlePayment,
     handlePaymentSuccess,
-    handleStudyRequest,
     vm.setPendingPayment,
   ]);
 
@@ -175,6 +187,13 @@ export const CourseCheckoutPage = memo(() => {
         selectedOption={selectedPaymentData}
         onOptionSelect={setSelectedPaymentData}
       />
+      {personalDetailsError && (
+        <Snackbar
+          children={personalDetailsError}
+          duration={5000}
+          onClose={() => setPersonalDetailsError(undefined)}
+        />
+      )}
     </>
   );
 });
