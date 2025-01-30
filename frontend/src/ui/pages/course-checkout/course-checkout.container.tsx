@@ -110,6 +110,7 @@ export const CourseCheckoutPage = memo(() => {
       }
       case "sberbank": {
         const payload = getSberPayPaymentPayload({ state, personalDetails });
+        console.log(payload);
         return await vm.createPayment(payload);
       }
     }
@@ -118,8 +119,7 @@ export const CourseCheckoutPage = memo(() => {
   const handleSubmit = useCallback(async () => {
     if (personalDetails.name.length === 0)
       setPersonalDetailsError("Зполните личные данные");
-
-    if (!personalDetailsError) {
+    else {
       setIsLoading(true);
 
       setIsModalOpen(false);
@@ -140,7 +140,6 @@ export const CourseCheckoutPage = memo(() => {
     }
   }, [
     personalDetails.name.length,
-    personalDetailsError,
     handleStudyRequest,
     handlePayment,
     handlePaymentSuccess,

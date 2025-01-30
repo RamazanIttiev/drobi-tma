@@ -206,7 +206,7 @@ const getPaymentReceipt = (
   return {
     customer: {
       email: personalDetails.email,
-      phone: personalDetails.phone,
+      phone: formatPhoneNumber(personalDetails.phone),
     },
     items: [
       {
@@ -233,4 +233,8 @@ export const isTokenResponseSuccessful = (
 export const DEFAULT_PAYMENT_METHOD: AvailablePaymentData = {
   id: "SberPay",
   paymentMethodType: "sberbank",
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  return phone.replace(/\D/g, "");
 };
