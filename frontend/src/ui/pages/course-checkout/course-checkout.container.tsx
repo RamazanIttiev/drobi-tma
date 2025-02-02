@@ -49,7 +49,7 @@ export const CourseCheckoutPage = memo(() => {
 
     setIsModalOpen(false);
 
-    // await checkoutVM.addStudy();
+    await checkoutVM.addStudy();
 
     const response = await checkoutVM.createPayment(state);
 
