@@ -8,6 +8,8 @@ import {
   Selectable,
 } from "@telegram-apps/telegram-ui";
 import { Link } from "react-router-dom";
+import { ModalOverlay } from "@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalOverlay/ModalOverlay";
+import { Icon28AddCircle } from "@telegram-apps/telegram-ui/dist/icons/28/add_circle";
 
 import IconCard from "@/assets/icons/card-icon.svg";
 import IconSberbank from "@/assets/icons/icon-sberbank.svg";
@@ -16,8 +18,6 @@ import { AvailablePaymentData } from "@/ui/pages/payment/payment.model.ts";
 import { CheckoutPageState } from "@/ui/pages/course-checkout/course-checkout.container.tsx";
 
 import "./payment-method-select-modal.css";
-import { ModalOverlay } from "@telegram-apps/telegram-ui/dist/components/Overlays/Modal/components/ModalOverlay/ModalOverlay";
-import { Icon28AddCircle } from "@telegram-apps/telegram-ui/dist/icons/28/add_circle";
 
 interface PaymentMethodSelectModalComponentProps {
   state: CheckoutPageState;
@@ -27,6 +27,17 @@ interface PaymentMethodSelectModalComponentProps {
   selectedOption: AvailablePaymentData | undefined;
   onOptionSelect: (value: AvailablePaymentData) => void;
 }
+
+const getLabel = (paymentMethodType: string) => {
+  switch (paymentMethodType) {
+    case "bank_card":
+      return "Банковская карта";
+    case "sberbank":
+      return "SberPay";
+    default:
+      return "";
+  }
+};
 
 export const PaymentMethodSelectModalComponent = ({
   state,
@@ -52,10 +63,7 @@ export const PaymentMethodSelectModalComponent = ({
       onOpenChange={onChange}
       className={"paymentMethodSelectModal"}
     >
-      <Section
-        className={"paymentMethodSelectModal__section"}
-        footer={"Тут отображаются сохраненные карты после совершенного платежа"}
-      >
+      <Section className={"paymentMethodSelectModal__section"}>
         <form>
           {options?.map((option) => {
             return (
@@ -80,9 +88,7 @@ export const PaymentMethodSelectModalComponent = ({
                   }
                   multiline
                 >
-                  {option.paymentMethodType === "sberbank"
-                    ? "SberPay"
-                    : `${option.first6} ** **** ${option.last4}`}
+                  {getLabel(option.paymentMethodType)}
                 </Cell>
                 <Divider />
               </>
