@@ -17,7 +17,7 @@ export interface CourseCheckoutComponentProps {
   config: CourseConfig;
   paymentDataLabel?: string;
   personalDetailsLabel?: string;
-  showPaymentDataSection?: boolean;
+  isPaymentDataSectionShown?: boolean;
   openModal?: () => void;
   navigateToPersonalData?: () => void;
   handleSubmit: () => Promise<void>;
@@ -32,7 +32,7 @@ export const CourseCheckoutComponent = (
     config,
     paymentDataLabel,
     personalDetailsLabel,
-    showPaymentDataSection,
+    isPaymentDataSectionShown,
     navigateToPersonalData,
     openModal,
   } = props;
@@ -84,7 +84,7 @@ export const CourseCheckoutComponent = (
           </button>
         </Section>
 
-        {showPaymentDataSection && (
+        {isPaymentDataSectionShown && (
           <Section>
             <button
               className={"checkout__cell checkout__cell_button"}
