@@ -205,7 +205,7 @@ const getPaymentReceipt = (
 ): IReceipt => {
   return {
     customer: {
-      email: personalDetails.email,
+      email: personalDetails.email || undefined,
       phone: formatPhoneNumber(personalDetails.phone),
     },
     items: [
