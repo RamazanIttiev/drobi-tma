@@ -16,10 +16,10 @@ export interface CourseCheckoutComponentProps {
   price: number;
   config: CourseConfig;
   paymentDataLabel?: string;
-  personalDetailsLabel?: string;
-  isPaymentDataSectionShown?: boolean;
+  personalDetailsLabel: string;
+  isPaymentDataSectionShown: boolean;
   openModal?: () => void;
-  navigateToPersonalData?: () => void;
+  navigateToPersonalData: () => void;
   handleSubmit: () => Promise<void>;
 }
 
@@ -35,6 +35,7 @@ export const CourseCheckoutComponent = (
     isPaymentDataSectionShown,
     navigateToPersonalData,
     openModal,
+    handleSubmit,
   } = props;
 
   return (
@@ -100,7 +101,7 @@ export const CourseCheckoutComponent = (
           </Section>
         )}
         {import.meta.env.MODE === "development" && (
-          <Button onClick={props.handleSubmit} stretched>
+          <Button onClick={handleSubmit} stretched>
             Оплатить
           </Button>
         )}
