@@ -4,7 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
-import { setMiniAppBackgroundColor } from "@telegram-apps/sdk-react";
+import {
+  setMainButtonParams,
+  setMiniAppBackgroundColor,
+} from "@telegram-apps/sdk-react";
 
 import {
   AvailablePaymentData,
@@ -54,6 +57,7 @@ export const CourseCheckoutPage = memo(() => {
     const response = await checkoutVM.createPayment(state);
 
     if (response?.confirmation.confirmation_url) {
+      setMainButtonParams({ isVisible: false });
       setMiniAppBackgroundColor("#ffffff");
       window.location.href = response?.confirmation.confirmation_url;
     }
