@@ -30,7 +30,6 @@ export function Select<T extends string>(props: SelectProps<T>) {
       selectRef.current.dispatchEvent(
         new MouseEvent("mousedown", { bubbles: true }),
       );
-      selectRef.current.showPicker();
     }
   };
 
