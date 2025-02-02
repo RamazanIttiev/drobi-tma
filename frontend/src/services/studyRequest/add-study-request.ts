@@ -2,7 +2,7 @@ import axios from "axios";
 
 interface StudyRequest {
   fullName: string;
-  eMail: string;
+  eMail?: string;
   phone: string;
 }
 
