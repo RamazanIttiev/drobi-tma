@@ -4,20 +4,19 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
-import { setMainButtonParams } from "@telegram-apps/sdk-react";
+import { setMiniAppBackgroundColor } from "@telegram-apps/sdk-react";
 
-import { DEFAULT_PAYMENT_METHOD } from "@/ui/pages/payment/payment.model.ts";
+import {
+  AvailablePaymentData,
+  DEFAULT_PAYMENT_METHOD,
+} from "@/ui/pages/payment/payment.model.ts";
 
 import { CourseCheckoutComponent } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
 import { PaymentMethodSelectModalComponent } from "@/ui/organisms/payment-method-select-modal/payment-method-select-modal.component.tsx";
-import { Payment } from "@a2seven/yoo-checkout";
 import { Snackbar } from "@telegram-apps/telegram-ui";
 
 import { useMainButton } from "@/hooks/use-main-button.ts";
-import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-checkout.view-model.ts";
-
-import { handlePaymentPending } from "@/ui/pages/payment/utils/payment.ts";
 
 import "./course-checkout.css";
 
@@ -38,16 +37,7 @@ export const CourseCheckoutPage = memo(() => {
     string | undefined
   >(undefined);
 
-  const paymentVM = usePaymentViewModel();
   const checkoutVM = useCourseCheckoutViewModel();
-
-  const handlePaymentSuccess = useCallback(
-    (response: Payment) => {
-      setIsLoading(false);
-      navigate("/payment-status", { state: { status: response?.status } });
-    },
-    [navigate],
-  );
 
   const handleSubmit = useCallback(async () => {
     if (!checkoutVM.personalDetails.name) {
@@ -59,20 +49,15 @@ export const CourseCheckoutPage = memo(() => {
 
     setIsModalOpen(false);
 
-    await checkoutVM.addStudy();
+    // await checkoutVM.addStudy();
 
     const response = await checkoutVM.createPayment(state);
 
-    if (response?.status === "succeeded") {
-      handlePaymentSuccess(response);
-    } else if (response?.status === "pending") {
-      await handlePaymentPending(response, paymentVM.setPendingPayment);
-
-      setMainButtonParams({
-        isVisible: false,
-      });
+    if (response?.confirmation.confirmation_url) {
+      setMiniAppBackgroundColor("#ffffff");
+      window.location.href = response?.confirmation.confirmation_url;
     }
-  }, [checkoutVM, handlePaymentSuccess, paymentVM.setPendingPayment, state]);
+  }, [checkoutVM, state]);
 
   useMainButton({
     text: checkoutVM.mainButtonText,
@@ -83,16 +68,15 @@ export const CourseCheckoutPage = memo(() => {
 
   useEffect(() => {
     const fetchPaymentData = async () => {
-      const availablePayment = await paymentVM.getPaymentData();
+      const bankCardMethod: AvailablePaymentData = {
+        id: "bank_card",
+        paymentMethodType: "bank_card",
+      };
 
-      if (availablePayment) {
-        checkoutVM.changeAvailablePaymentData([
-          DEFAULT_PAYMENT_METHOD,
-          ...availablePayment,
-        ]);
-      } else {
-        checkoutVM.changeAvailablePaymentData([DEFAULT_PAYMENT_METHOD]);
-      }
+      checkoutVM.changeAvailablePaymentData([
+        DEFAULT_PAYMENT_METHOD,
+        bankCardMethod,
+      ]);
     };
 
     fetchPaymentData().catch(console.error);
@@ -107,7 +91,7 @@ export const CourseCheckoutPage = memo(() => {
         paymentDataLabel={checkoutVM.paymentDataLabel}
         personalDetailsLabel={checkoutVM.personalDetailsLabel}
         navigateToPersonalData={() => navigate("/personal-details")}
-        isPaymentDataSectionShown={checkoutVM.personalDetails.name !== ""}
+        isPaymentDataSectionShown={false}
         openModal={() => setIsModalOpen(true)}
         handleSubmit={handleSubmit}
       />

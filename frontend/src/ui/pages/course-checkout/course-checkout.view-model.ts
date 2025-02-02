@@ -2,8 +2,7 @@ import { useState } from "react";
 import {
   AvailablePaymentData,
   DEFAULT_PAYMENT_METHOD,
-  getSavedCardPaymentPayload,
-  getSberPayPaymentPayload,
+  getDefaultPayload,
 } from "@/ui/pages/payment/payment.model.ts";
 import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
@@ -48,22 +47,12 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
   };
 
   const createPayment = async (state: any) => {
-    switch (selectedPaymentData?.paymentMethodType) {
-      case "bank_card": {
-        const payload = getSavedCardPaymentPayload({
-          state,
-          personalDetails,
-          payment_method_id: selectedPaymentData.id,
-        });
+    const payload = getDefaultPayload({
+      state,
+      personalDetails,
+    });
 
-        return await paymentVM.createPayment(payload);
-      }
-      case "sberbank": {
-        const payload = getSberPayPaymentPayload({ state, personalDetails });
-
-        return await paymentVM.createPayment(payload);
-      }
-    }
+    return await paymentVM.createPayment(payload);
   };
 
   const changeAvailablePaymentData = (data: AvailablePaymentData[]) => {
@@ -79,13 +68,13 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
       case "sberbank":
         return "SberPay";
       case "bank_card":
-        return `**** ${selectedPaymentData.last4}`;
+        return `Банковская карта`;
       default:
         return "SberPay";
     }
   };
 
-  const mainButtonText = selectedPaymentData ? "Оплатить" : "К оплате";
+  const mainButtonText = "К оплате";
 
   return {
     personalDetails,

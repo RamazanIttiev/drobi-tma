@@ -128,7 +128,7 @@ export const mapErrorsToFields = (
   return fieldErrors;
 };
 
-const getDefaultPayload = ({
+export const getDefaultPayload = ({
   state,
   personalDetails,
 }: DefaultPaymentPayload): CreatePayment => {
