@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "@/common/constants.ts";
 
 interface StudyRequest {
   fullName: string;
@@ -25,10 +26,7 @@ export const addStudyRequestFromApi = async (
   payload: StudyRequest,
 ): Promise<StudyRequestResponse | undefined> => {
   try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/addStudyRequest`,
-      payload,
-    );
+    const response = await axios.post(`${API_URL}/addStudyRequest`, payload);
 
     return response.data;
   } catch (error) {

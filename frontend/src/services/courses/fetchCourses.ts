@@ -2,15 +2,13 @@ import { Course } from "@/ui/pages/course/course.model.ts";
 import { courses } from "@/mocks/courses.ts";
 import axios from "axios";
 import { ngrokHeader } from "@/common/models.ts";
+import { API_URL } from "@/common/constants.ts";
 
 export const fetchCourses = async (): Promise<Course[]> => {
   try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/courses`,
-      {
-        headers: { ...ngrokHeader },
-      },
-    );
+    const response = await axios.get(`${API_URL}/courses`, {
+      headers: { ...ngrokHeader },
+    });
 
     return response.data;
   } catch (err) {
