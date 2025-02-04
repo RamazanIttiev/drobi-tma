@@ -12,12 +12,13 @@ import { Input } from "@/ui/atoms/input/input.component.tsx";
 
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 import { FieldErrors } from "@/common/models.ts";
-import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 
 import "./personal-details.css";
 
 interface PersonalDataPageProps {
   errors?: FieldErrors;
+  personalDetails: PersonalDetails;
+  savePersonalDetails: boolean;
   handleChange: (
     field: keyof PersonalDetails,
   ) => (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -26,10 +27,14 @@ interface PersonalDataPageProps {
 }
 
 export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
-  const { errors, handleSavePersonalDetails, handleChange, handleSubmit } =
-    props;
-
-  const { personalDetails, savePersonalDetails } = usePersonalDetails();
+  const {
+    personalDetails,
+    savePersonalDetails,
+    errors,
+    handleSavePersonalDetails,
+    handleChange,
+    handleSubmit,
+  } = props;
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>

@@ -22,8 +22,7 @@ import { CoursePage } from "@/ui/pages/course/course.container.tsx";
 import { PaymentPage } from "@/ui/pages/payment/payment.container.tsx";
 import { PaymentProvider } from "@/context/payment-data.context.tsx";
 import { PaymentStatusPage } from "@/ui/pages/payment-status/payment-status.container.tsx";
-import { PersonalDetailsProvider } from "@/context/personal-details.context.tsx";
-import { PersonalDetailsPage } from "@/ui/pages/personal-details/personal-details.page.tsx";
+import { PersonalDetailsContainer } from "@/ui/pages/personal-details/personal-details.container.tsx";
 import { useEffect } from "react";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 import { CloudStorageKeys } from "@/common/models.ts";
@@ -35,7 +34,7 @@ const router = createBrowserRouter(
       <Route path="subject/:id" element={<CoursePage />} />
       <Route path="checkout/:id" element={<CourseCheckoutPage />} />
       <Route path="payment-details" element={<PaymentPage />} />
-      <Route path="personal-details" element={<PersonalDetailsPage />} />
+      <Route path="personal-details" element={<PersonalDetailsContainer />} />
 
       <Route path="payment-status" element={<PaymentStatusPage />} />
     </>,
@@ -91,9 +90,7 @@ export function App() {
       platform={["macos", "ios"].includes(lp.platform) ? "ios" : "base"}
     >
       <PaymentProvider>
-        <PersonalDetailsProvider>
-          <RouterProvider router={router} />
-        </PersonalDetailsProvider>
+        <RouterProvider router={router} />
       </PaymentProvider>
     </AppRoot>
   );
