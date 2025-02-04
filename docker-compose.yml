@@ -21,7 +21,7 @@ services:
     build:
       context: ./backend
     env_file:
-      - ./backend/.env
+      - ./backend/.env.production
     networks:
       - dev
 
@@ -29,6 +29,6 @@ services:
     build:
       context: ./frontend
     env_file:
-        - ./frontend/.env
+        - ./frontend/.env.production
     networks:
       - dev

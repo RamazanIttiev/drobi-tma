@@ -15,21 +15,14 @@ export class PaymentController {
   async getPayments(
     @param.path.string('id') id: string,
   ): Promise<Payment | undefined> {
-    console.log(id);
     try {
       const res = await axios.get(`https://api.yookassa.ru/v3/payments/${id}`, {
         headers: {
           'Idempotence-Key': uuid(),
         },
         auth: {
-          username:
-            (process.env.MODE === 'development'
-              ? process.env.YOO_KASSA_SHOP_ID_TEST
-              : process.env.YOO_KASSA_SHOP_ID) ?? '',
-          password:
-            (process.env.MODE === 'development'
-              ? process.env.YOO_KASSA_SECRET_KEY_TEST
-              : process.env.YOO_KASSA_SECRET_KEY) ?? '',
+          username: process.env.YOO_KASSA_SHOP_ID ?? '',
+          password: process.env.YOO_KASSA_SECRET_KEY ?? '',
         },
       });
 
@@ -60,14 +53,8 @@ export class PaymentController {
             'Idempotence-Key': uuid(),
           },
           auth: {
-            username:
-              (process.env.MODE === 'development'
-                ? process.env.YOO_KASSA_SHOP_ID_TEST
-                : process.env.YOO_KASSA_SHOP_ID) ?? '',
-            password:
-              (process.env.MODE === 'development'
-                ? process.env.YOO_KASSA_SECRET_KEY_TEST
-                : process.env.YOO_KASSA_SECRET_KEY) ?? '',
+            username: process.env.YOO_KASSA_SHOP_ID ?? '',
+            password: process.env.YOO_KASSA_SECRET_KEY ?? '',
           },
         },
       );

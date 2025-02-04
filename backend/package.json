@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "rm -rf dist *.tsbuildinfo .eslintcache && tsc",
-    "start:backend": "npm run rebuild && PORT=8080 node -r source-map-support/register .",
+    "start:backend": "npm run rebuild && MODE=development PORT=8080 node --env-file=.env.development -r source-map-support/register .",
+    "start-prod:backend": "npm run rebuild && MODE=production PORT=8080 node --env-file=.env.production -r source-map-support/register .",
     "push:cloud-backend": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/drobi/backend",
 
     "lint": "npm run eslint && npm run prettier:check",
