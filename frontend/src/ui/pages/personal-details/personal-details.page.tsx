@@ -9,13 +9,19 @@ import { useMainButton } from "@/hooks/use-main-button.ts";
 import { useNavigate } from "react-router-dom";
 import { PersonalDetailsContainer } from "@/ui/pages/personal-details/personal-details.container.tsx";
 import { Snackbar } from "@telegram-apps/telegram-ui";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 
 export const PersonalDetailsPage = () => {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { personalDetails } = usePersonalDetails();
+  const { addItem } = useCloudStorage();
+  const { personalDetails, savePersonalDetails } = usePersonalDetails();
+
+  const handleSavePersonalDetails = useCallback(() => {
+    if (savePersonalDetails) addItem("personal_details", personalDetails);
+  }, [addItem, personalDetails, savePersonalDetails]);
 
   const handleSubmit = useCallback(async () => {
     const newErrors: FieldErrors = {};
@@ -33,9 +39,11 @@ export const PersonalDetailsPage = () => {
       return;
     }
 
+    handleSavePersonalDetails();
+
     setErrors({});
     navigate(-1);
-  }, [navigate, personalDetails]);
+  }, [handleSavePersonalDetails, navigate, personalDetails]);
 
   useMainButton({ onClick: handleSubmit, text: "Сохранить" });
 

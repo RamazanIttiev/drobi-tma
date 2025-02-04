@@ -1,37 +1,57 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 
 interface PersonalDetailsContextType {
-  // personalDetailsFromCloud: PersonalDetails;
   personalDetails: PersonalDetails;
-  // savePersonalDetails: boolean;
+  savePersonalDetails: boolean;
   setPersonalDetails: (details: PersonalDetails) => void;
-  // setSavePersonalDetails: (value: boolean) => void;
+  setSavePersonalDetails: (value: boolean) => void;
 }
 
 const defaultPersonalDetails: PersonalDetails = {
-  name: "dwdaw",
+  name: "",
   email: "",
-  phone: "+7 (999) 999-99-99",
+  phone: "",
 };
 
 const PersonalDetailsContext = createContext<PersonalDetailsContextType>({
   personalDetails: defaultPersonalDetails,
+  savePersonalDetails: true,
+  setSavePersonalDetails: () => {},
   setPersonalDetails: () => {},
 });
 
 export const PersonalDetailsProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
+  const { getItem } = useCloudStorage();
+
   const [personalDetails, setPersonalDetails] = useState<PersonalDetails>(
     defaultPersonalDetails,
   );
 
+  const [savePersonalDetails, setSavePersonalDetails] = useState<boolean>(true);
+
+  useEffect(() => {
+    const getPersonalDetailsFromCloud = async () => {
+      const data = await getItem(["personal_details"]);
+
+      if (data?.personal_details) {
+        setPersonalDetails(data?.personal_details as PersonalDetails);
+      }
+    };
+
+    getPersonalDetailsFromCloud().catch(console.error);
+  }, [getItem]);
+
   return (
     <PersonalDetailsContext.Provider
       value={{
+        savePersonalDetails,
         personalDetails,
         setPersonalDetails,
+        setSavePersonalDetails,
       }}
     >
       {children}

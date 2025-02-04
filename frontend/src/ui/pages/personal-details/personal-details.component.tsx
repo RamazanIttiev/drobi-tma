@@ -1,25 +1,35 @@
-import React from "react";
+import React, { ChangeEvent } from "react";
 import { Page } from "@/ui/organisms/page/page";
-import { Button, List, Section } from "@telegram-apps/telegram-ui";
+import {
+  Button,
+  Cell,
+  List,
+  Section,
+  Switch,
+} from "@telegram-apps/telegram-ui";
 import { PatternFormat } from "react-number-format";
 import { Input } from "@/ui/atoms/input/input.component.tsx";
 
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 import { FieldErrors } from "@/common/models.ts";
+import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 
 import "./personal-details.css";
 
 interface PersonalDataPageProps {
   errors?: FieldErrors;
-  personalDetails: PersonalDetails | undefined;
   handleChange: (
     field: keyof PersonalDetails,
   ) => (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit?: () => void;
+  handleSubmit: () => void;
+  handleSavePersonalDetails: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
-  const { errors, personalDetails, handleChange, handleSubmit } = props;
+  const { errors, handleSavePersonalDetails, handleChange, handleSubmit } =
+    props;
+
+  const { personalDetails, savePersonalDetails } = usePersonalDetails();
 
   return (
     <Page verticalPaddingDisabled horizontalPaddingDisabled>
@@ -59,21 +69,21 @@ export const PersonalDetailsComponent = (props: PersonalDataPageProps) => {
           />
         </Section>
 
-        {/*<Section footer="Так не придется заполнять их в следующий раз">*/}
-        {/*  <Cell*/}
-        {/*    Component="label"*/}
-        {/*    after={*/}
-        {/*      <Switch*/}
-        {/*        defaultChecked*/}
-        {/*        onChange={handleSavePersonalDetails}*/}
-        {/*        checked={savePersonalDetails}*/}
-        {/*      />*/}
-        {/*    }*/}
-        {/*    multiline*/}
-        {/*  >*/}
-        {/*    Сохранить данные*/}
-        {/*  </Cell>*/}
-        {/*</Section>*/}
+        <Section footer="Так не придется заполнять их в следующий раз">
+          <Cell
+            Component="label"
+            after={
+              <Switch
+                defaultChecked
+                onChange={handleSavePersonalDetails}
+                checked={savePersonalDetails}
+              />
+            }
+            multiline
+          >
+            Сохранить данные
+          </Cell>
+        </Section>
         {import.meta.env.DEV && (
           <Button stretched onClick={handleSubmit}>
             Оплатить
