@@ -1,5 +1,5 @@
 import { Payment } from "@a2seven/yoo-checkout";
-import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
+import { addStudyRequestFromApi } from "@/api/studyRequest/add-study-request.ts";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
 import { openLink } from "@telegram-apps/sdk-react";
 

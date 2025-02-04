@@ -5,7 +5,7 @@ import {
   getDefaultPayload,
 } from "@/ui/pages/payment/payment.model.ts";
 import { usePersonalDetails } from "@/context/personal-details.context.tsx";
-import { addStudyRequestFromApi } from "@/services/studyRequest/add-study-request.ts";
+import { addStudyRequestFromApi } from "@/api/studyRequest/add-study-request.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";

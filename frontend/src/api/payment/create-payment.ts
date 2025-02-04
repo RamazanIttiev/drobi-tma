@@ -1,6 +1,6 @@
 import { Payment } from "@a2seven/yoo-checkout";
-import axios from "axios";
 import { CreatePayment } from "@/ui/pages/payment/payment.model.ts";
+import axios from "axios";
 import { API_URL } from "@/common/constants.ts";
 
 export const createPaymentFromApi = async (
