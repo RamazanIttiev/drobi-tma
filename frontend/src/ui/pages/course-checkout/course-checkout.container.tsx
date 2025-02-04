@@ -5,6 +5,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
 import {
+  hideBackButton,
+  setMainButtonParams,
+  setMiniAppBackgroundColor,
+} from "@telegram-apps/sdk-react";
+
+import {
   AvailablePaymentData,
   DEFAULT_PAYMENT_METHOD,
 } from "@/ui/pages/payment/payment.model.ts";
@@ -16,11 +22,6 @@ import { useMainButton } from "@/hooks/use-main-button.ts";
 import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-checkout.view-model.ts";
 
 import "./course-checkout.css";
-import {
-  hideBackButton,
-  setMainButtonParams,
-  setMiniAppBackgroundColor,
-} from "@telegram-apps/sdk-react";
 
 export interface CheckoutPageState {
   title: string;
@@ -53,14 +54,11 @@ export const CourseCheckoutPage = memo(() => {
     const response = await checkoutVM.createPayment(state);
 
     if (response?.confirmation.confirmation_url) {
-      setIsLoading(false);
-      setMiniAppBackgroundColor("#F6F7F9FF");
       hideBackButton();
-      setMainButtonParams({
-        isVisible: false,
-      });
+      setMainButtonParams({ isVisible: false });
+      setMiniAppBackgroundColor("#ffffff");
 
-      window.location.href = response.confirmation.confirmation_url;
+      window.location.href = response?.confirmation.confirmation_url;
     }
   }, [checkoutVM, state]);
 

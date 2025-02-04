@@ -7,8 +7,8 @@ import {
 } from "@/ui/pages/payment/payment.model.ts";
 import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 import { Payment } from "@a2seven/yoo-checkout";
-import { createPaymentFromApi } from "@/services/payment/create-payment.ts";
-import { getPaymentFromApi } from "@/services/payment/get-payment.ts";
+import { createPaymentFromApi } from "@/api/payment/create-payment.ts";
+import { getPaymentFromApi } from "@/api/payment/get-payment.ts";
 
 interface PaymentViewModel {
   getPayment: (id: string) => Promise<Payment | undefined>;

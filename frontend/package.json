@@ -8,7 +8,6 @@
     "build": "node_modules/.bin/tsc --noEmit && vite build",
     "start:frontend": "node_modules/.bin/vite",
     "push:cloud-frontend": "rsync -avz --exclude-from='.rsync-exclude' -e \"ssh -i /Users/rittiev/.ssh/drobi.school\" ./ root@62.217.180.79:/drobi/frontend",
-
     "lint": "node_modules/.bin/eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "node_modules/.bin/eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "preview": "node_modules/.bin/vite preview"
@@ -29,7 +28,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "autoprefixer": "^10.4.20",
-    "axios": "^1.7.7",
+    "axios": "^1.7.9",
     "eslint": "^9.13.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
