@@ -16,7 +16,6 @@ import {
 } from "@/ui/pages/payment/payment.model.ts";
 
 import { CourseCheckoutComponent } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
-import { PaymentMethodSelectModalComponent } from "@/ui/organisms/payment-method-select-modal/payment-method-select-modal.component.tsx";
 import { Snackbar } from "@telegram-apps/telegram-ui";
 
 import { useMainButton } from "@/hooks/use-main-button.ts";
@@ -35,7 +34,6 @@ export const CourseCheckoutPage = memo(() => {
   const navigate = useNavigate();
   const state = location.state as CheckoutPageState;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [personalDetailsError, setPersonalDetailsError] = useState<
     string | undefined
@@ -50,8 +48,6 @@ export const CourseCheckoutPage = memo(() => {
     }
 
     setIsLoading(true);
-
-    setIsModalOpen(false);
 
     await checkoutVM.addStudy();
 
@@ -99,17 +95,16 @@ export const CourseCheckoutPage = memo(() => {
         personalDetailsLabel={checkoutVM.personalDetailsLabel}
         navigateToPersonalData={() => navigate("/personal-details")}
         isPaymentDataSectionShown={false}
-        openModal={() => setIsModalOpen(true)}
         handleSubmit={handleSubmit}
       />
-      <PaymentMethodSelectModalComponent
-        state={state}
-        isOpen={isModalOpen}
-        onChange={setIsModalOpen}
-        options={checkoutVM.availablePaymentData}
-        selectedOption={checkoutVM.selectedPaymentData}
-        onOptionSelect={checkoutVM.changeSelectedPaymentData}
-      />
+      {/*<PaymentMethodSelectModalComponent*/}
+      {/*  state={state}*/}
+      {/*  isOpen={isModalOpen}*/}
+      {/*  onChange={setIsModalOpen}*/}
+      {/*  options={checkoutVM.availablePaymentData}*/}
+      {/*  selectedOption={checkoutVM.selectedPaymentData}*/}
+      {/*  onOptionSelect={checkoutVM.changeSelectedPaymentData}*/}
+      {/*/>*/}
       {personalDetailsError && (
         <Snackbar
           children={personalDetailsError}

@@ -23,11 +23,11 @@ export class PaymentController {
         },
         auth: {
           username:
-            (process.env.MODE === 'dev'
+            (process.env.MODE === 'development'
               ? process.env.YOO_KASSA_SHOP_ID_TEST
               : process.env.YOO_KASSA_SHOP_ID) ?? '',
           password:
-            (process.env.MODE === 'dev'
+            (process.env.MODE === 'development'
               ? process.env.YOO_KASSA_SECRET_KEY_TEST
               : process.env.YOO_KASSA_SECRET_KEY) ?? '',
         },
@@ -61,11 +61,11 @@ export class PaymentController {
           },
           auth: {
             username:
-              (process.env.MODE === 'dev'
+              (process.env.MODE === 'development'
                 ? process.env.YOO_KASSA_SHOP_ID_TEST
                 : process.env.YOO_KASSA_SHOP_ID) ?? '',
             password:
-              (process.env.MODE === 'dev'
+              (process.env.MODE === 'development'
                 ? process.env.YOO_KASSA_SECRET_KEY_TEST
                 : process.env.YOO_KASSA_SECRET_KEY) ?? '',
           },
