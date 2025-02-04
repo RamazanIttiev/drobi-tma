@@ -5,23 +5,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CourseConfig } from "@/ui/pages/course/course.model.ts";
 
 import {
-  setMainButtonParams,
-  setMiniAppBackgroundColor,
-} from "@telegram-apps/sdk-react";
-
-import {
   AvailablePaymentData,
   DEFAULT_PAYMENT_METHOD,
 } from "@/ui/pages/payment/payment.model.ts";
 
 import { CourseCheckoutComponent } from "@/ui/pages/course-checkout/course-checkout.component.tsx";
-import { PaymentMethodSelectModalComponent } from "@/ui/organisms/payment-method-select-modal/payment-method-select-modal.component.tsx";
 import { Snackbar } from "@telegram-apps/telegram-ui";
 
 import { useMainButton } from "@/hooks/use-main-button.ts";
 import { useCourseCheckoutViewModel } from "@/ui/pages/course-checkout/course-checkout.view-model.ts";
 
 import "./course-checkout.css";
+import {
+  hideBackButton,
+  setMainButtonParams,
+  setMiniAppBackgroundColor,
+} from "@telegram-apps/sdk-react";
 
 export interface CheckoutPageState {
   title: string;
@@ -34,7 +33,6 @@ export const CourseCheckoutPage = memo(() => {
   const navigate = useNavigate();
   const state = location.state as CheckoutPageState;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [personalDetailsError, setPersonalDetailsError] = useState<
     string | undefined
@@ -50,16 +48,19 @@ export const CourseCheckoutPage = memo(() => {
 
     setIsLoading(true);
 
-    setIsModalOpen(false);
-
     await checkoutVM.addStudy();
 
     const response = await checkoutVM.createPayment(state);
 
     if (response?.confirmation.confirmation_url) {
-      setMainButtonParams({ isVisible: false });
-      setMiniAppBackgroundColor("#ffffff");
-      window.location.href = response?.confirmation.confirmation_url;
+      setIsLoading(false);
+      setMiniAppBackgroundColor("#F6F7F9FF");
+      hideBackButton();
+      setMainButtonParams({
+        isVisible: false,
+      });
+
+      window.location.href = response.confirmation.confirmation_url;
     }
   }, [checkoutVM, state]);
 
@@ -96,17 +97,16 @@ export const CourseCheckoutPage = memo(() => {
         personalDetailsLabel={checkoutVM.personalDetailsLabel}
         navigateToPersonalData={() => navigate("/personal-details")}
         isPaymentDataSectionShown={false}
-        openModal={() => setIsModalOpen(true)}
         handleSubmit={handleSubmit}
       />
-      <PaymentMethodSelectModalComponent
-        state={state}
-        isOpen={isModalOpen}
-        onChange={setIsModalOpen}
-        options={checkoutVM.availablePaymentData}
-        selectedOption={checkoutVM.selectedPaymentData}
-        onOptionSelect={checkoutVM.changeSelectedPaymentData}
-      />
+      {/*<PaymentMethodSelectModalComponent*/}
+      {/*  state={state}*/}
+      {/*  isOpen={isModalOpen}*/}
+      {/*  onChange={setIsModalOpen}*/}
+      {/*  options={checkoutVM.availablePaymentData}*/}
+      {/*  selectedOption={checkoutVM.selectedPaymentData}*/}
+      {/*  onOptionSelect={checkoutVM.changeSelectedPaymentData}*/}
+      {/*/>*/}
       {personalDetailsError && (
         <Snackbar
           children={personalDetailsError}

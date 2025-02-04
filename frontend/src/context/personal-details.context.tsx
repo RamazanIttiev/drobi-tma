@@ -10,9 +10,9 @@ interface PersonalDetailsContextType {
 }
 
 const defaultPersonalDetails: PersonalDetails = {
-  name: "",
+  name: "dwdaw",
   email: "",
-  phone: "",
+  phone: "+7 (999) 999-99-99",
 };
 
 const PersonalDetailsContext = createContext<PersonalDetailsContextType>({
