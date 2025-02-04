@@ -34,6 +34,10 @@ export const CourseCheckoutPage = memo(() => {
   const navigate = useNavigate();
   const state = location.state as CheckoutPageState;
 
+  const [personalDetailsLabel, setPersonalDetailsLabel] = useState<
+    string | undefined
+  >(undefined);
+
   const [isLoading, setIsLoading] = useState(false);
   const [personalDetailsError, setPersonalDetailsError] = useState<
     string | undefined
@@ -42,7 +46,7 @@ export const CourseCheckoutPage = memo(() => {
   const checkoutVM = useCourseCheckoutViewModel();
 
   const handleSubmit = useCallback(async () => {
-    if (!checkoutVM.personalDetails.name) {
+    if (!personalDetailsLabel) {
       setPersonalDetailsError("Заполните личные данные");
       return;
     }
@@ -60,13 +64,13 @@ export const CourseCheckoutPage = memo(() => {
 
       window.location.href = response?.confirmation.confirmation_url;
     }
-  }, [checkoutVM, state]);
+  }, [checkoutVM, personalDetailsLabel, state]);
 
   useMainButton({
     text: checkoutVM.mainButtonText,
     onClick: handleSubmit,
     isLoading,
-    isEnabled: checkoutVM.personalDetails.name !== "",
+    isEnabled: personalDetailsLabel !== "",
   });
 
   useEffect(() => {
@@ -85,6 +89,15 @@ export const CourseCheckoutPage = memo(() => {
     fetchPaymentData().catch(console.error);
   }, []);
 
+  useEffect(() => {
+    const getPersonalDetailsLabel = async () => {
+      const label = await checkoutVM.getPersonalDetailsLabel();
+      setPersonalDetailsLabel(label);
+    };
+
+    getPersonalDetailsLabel().catch(console.error);
+  }, [checkoutVM]);
+
   return (
     <>
       <CourseCheckoutComponent
@@ -92,7 +105,7 @@ export const CourseCheckoutPage = memo(() => {
         title={state.title}
         price={state.price}
         paymentDataLabel={checkoutVM.paymentDataLabel}
-        personalDetailsLabel={checkoutVM.personalDetailsLabel}
+        personalDetailsLabel={personalDetailsLabel}
         navigateToPersonalData={() => navigate("/personal-details")}
         isPaymentDataSectionShown={false}
         handleSubmit={handleSubmit}

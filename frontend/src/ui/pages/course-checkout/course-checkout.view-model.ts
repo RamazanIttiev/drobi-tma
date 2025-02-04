@@ -4,28 +4,27 @@ import {
   DEFAULT_PAYMENT_METHOD,
   getDefaultPayload,
 } from "@/ui/pages/payment/payment.model.ts";
-import { usePersonalDetails } from "@/context/personal-details.context.tsx";
 import { addStudyRequestFromApi } from "@/api/studyRequest/add-study-request.ts";
 import { usePaymentViewModel } from "@/ui/pages/payment/payment-view-model.ts";
 import { Payment } from "@a2seven/yoo-checkout";
 import { PersonalDetails } from "@/ui/pages/personal-details/personal-details.model.ts";
+import { useCloudStorage } from "@/hooks/use-cloud-storage.ts";
 
 interface CourseCheckoutViewModel {
-  personalDetails: PersonalDetails;
   availablePaymentData: AvailablePaymentData[] | undefined;
   selectedPaymentData: AvailablePaymentData | undefined;
   paymentDataLabel: string;
-  personalDetailsLabel: string;
   mainButtonText: string;
   addStudy: () => Promise<void>;
   createPayment: (state: any) => Promise<Payment | undefined>;
   changeAvailablePaymentData: (data: AvailablePaymentData[]) => void;
   changeSelectedPaymentData: (data: AvailablePaymentData) => void;
+  getPersonalDetailsLabel: () => Promise<string>;
 }
 
 export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
-  const { personalDetails } = usePersonalDetails();
   const paymentVM = usePaymentViewModel();
+  const { getItem } = useCloudStorage();
 
   const [availablePaymentData, setAvailablePaymentData] = useState<
     AvailablePaymentData[] | undefined
@@ -34,7 +33,14 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
     AvailablePaymentData | undefined
   >(DEFAULT_PAYMENT_METHOD);
 
+  const getPersonalDetails = async () => {
+    const data = await getItem(["personal_details"]);
+
+    return data?.personal_details as PersonalDetails;
+  };
+
   const addStudy = async () => {
+    const personalDetails = await getPersonalDetails();
     try {
       await addStudyRequestFromApi({
         fullName: personalDetails.name,
@@ -47,6 +53,8 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
   };
 
   const createPayment = async (state: any) => {
+    const personalDetails = await getPersonalDetails();
+
     const payload = getDefaultPayload({
       state,
       personalDetails,
@@ -76,12 +84,17 @@ export const useCourseCheckoutViewModel = (): CourseCheckoutViewModel => {
 
   const mainButtonText = "К оплате";
 
+  const getPersonalDetailsLabel = async () => {
+    const personalDetails = await getPersonalDetails();
+
+    return personalDetails.name;
+  };
+
   return {
-    personalDetails,
     selectedPaymentData,
     availablePaymentData,
     paymentDataLabel: getPaymentDataLabel(),
-    personalDetailsLabel: personalDetails.name,
+    getPersonalDetailsLabel,
     mainButtonText,
     createPayment,
     addStudy,

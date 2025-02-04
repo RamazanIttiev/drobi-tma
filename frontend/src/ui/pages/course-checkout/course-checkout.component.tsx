@@ -16,7 +16,7 @@ export interface CourseCheckoutComponentProps {
   price: number;
   config: CourseConfig;
   paymentDataLabel?: string;
-  personalDetailsLabel: string;
+  personalDetailsLabel: string | undefined;
   isPaymentDataSectionShown: boolean;
   openModal?: () => void;
   navigateToPersonalData: () => void;
