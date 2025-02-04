@@ -2,9 +2,11 @@ import {
   $debug,
   backButton,
   disableVerticalSwipes,
+  enableClosingConfirmation,
   init as initSDK,
   initData,
   miniApp,
+  mountClosingBehavior,
   mountSwipeBehavior,
   themeParams,
   viewport,
@@ -32,6 +34,7 @@ export function init(debug: boolean): void {
   }
 
   // Mount all components used in the project.
+  mountClosingBehavior();
   backButton.mount();
   miniApp.mount();
   themeParams.mount();
@@ -48,6 +51,7 @@ export function init(debug: boolean): void {
         mountSwipeBehavior();
       }
 
+      enableClosingConfirmation();
       disableVerticalSwipes();
     });
 
